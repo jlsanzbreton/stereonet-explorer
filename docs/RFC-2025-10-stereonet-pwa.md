@@ -7,8 +7,8 @@
 **Fecha:** 2025‑10‑12  
 **Repos objetivo:** `stereonet-explorer` (nuevo o el ya existente de Google AI Studio)  
 **Compatibilidad Node/NPM:** Node `v22.18.0`, npm `10.9.3` (entorno actual de Jose)  
-**Build tool:** Vite 7 (o el más reciente compatible)  
-**Librerías clave:** React + TypeScript, D3, Dexie (IndexedDB), i18next/react‑i18next, vite‑plugin‑pwa, (Supabase opcional)
+**Stack base actual:** Vite `^6.2.0`, React `^19.2.0`, TypeScript `~5.8.2` (mantener salvo que se indique lo contrario).
+**Librerías clave a incorporar:** D3 (ya presente), Dexie (IndexedDB), i18next/react‑i18next, vite‑plugin‑pwa, (Supabase opcional en fase futura)
 
 ---
 
@@ -17,12 +17,12 @@
 La versión funcional generada en Google AI Studio ya representa **planos y líneas** sobre un estereograma (Schmidt/Wulff). El objetivo es **transformarla** en una **aplicación PWA educativa** e **instalable** (iOS/Android/desktop), **offline‑first**, con **i18n (ES/EN)** y una **arquitectura resiliente** que permita crecer sin “deuda estructural”. La app debe servir **en aula y en campo**.
 
 **Metas principales**  
-1) Convertir a **PWA** (manifest + Service Worker; `vite-plugin-pwa`).  
-2) Reorganizar el código en **capas** (core matemático, UI, estado, datos).  
-3) Añadir **i18n** (ES/EN) y **menú superior** navegable.  
-4) Persistencia **local‑first** con **IndexedDB (Dexie)**; backend **pluggable** (Supabase opcional).  
+1) Reorganizar el código en **capas** (core matemático, UI, estado, datos) manteniendo funcionamiento actual.  
+2) Añadir **i18n** (ES/EN) y **menú superior** navegable.  
+3) Incorporar persistencia **local‑first** con **IndexedDB (Dexie)**; backend **pluggable** (Supabase opcional en etapa posterior).  
+4) Convertir a **PWA** (manifest + Service Worker; `vite-plugin-pwa`).  
 5) Preparar **boilerplate** de componentes futuros (vacíos pero tipados).  
-6) Asegurar **tests mínimos** y **calidad** (ESLint/Prettier, Lighthouse PWA).
+6) Asegurar **tests mínimos** y **calidad** (ESLint, Lighthouse PWA). Prettier opcional.
 
 Referencias técnicas: **PWA manifest** y **Service Workers (MDN/web.dev)**; **Vite/Vite PWA**; **i18next/react‑i18next**; **Dexie**; **Supabase JS**.  
 
@@ -132,7 +132,7 @@ tsconfig.json
 
 ## 5. Dependencias y _tooling_
 
-`package.json` (extracto):
+`package.json` (extracto objetivo cuando estén todas las iteraciones completadas):
 ```json
 {
   "name": "stereonet-explorer",
@@ -143,13 +143,13 @@ tsconfig.json
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "type-check": "tsc --noEmit",
     "pwa:assets": "pwa-assets-generator -i public/icons/icon-512.png -o public/icons"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "d3": "^7.9.0",
     "dexie": "^4.0.4",
     "i18next": "^23.13.0",
@@ -157,13 +157,13 @@ tsconfig.json
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "typescript": "^5.6.3",
-    "vite": "^7.0.0",
-    "@vitejs/plugin-react": "^4.3.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0",
+    "@vitejs/plugin-react": "^5.0.0",
     "vite-plugin-pwa": "^0.20.0",
     "eslint": "^9.14.0",
-    "@typescript-eslint/eslint-plugin": "^8.12.0",
-    "@typescript-eslint/parser": "^8.12.0",
+    "@eslint/js": "^9.15.0",
+    "typescript-eslint": "^8.16.0",
     "prettier": "^3.3.3"
   }
 }
@@ -352,29 +352,39 @@ export function projectLine(trendDeg: number, plungeDeg: number, radius: number,
 
 ## 9. Iteraciones (roadmap y entregables)
 
-### **Iteración 0 – Scaffold + PWA + i18n (5 días)**
-- Crear repo `stereonet-explorer` y rama `rfc/2025-10-stereonet-pwa`.
-- Añadir `package.json`, Vite, PWA, ESLint/Prettier, i18n, Dexie (sin usar aún).
-- Migrar archivos de **Google AI Studio** al nuevo árbol (tabla §4).  
-**Criterios de aceptación**:  
-PWA instalable, app abre offline, switch ES/EN, TopNav visible, el estereonet actual funciona.
+### Flujo de ramas
+- `main`: producción (Pages).  
+- `dev`: integración estable previa a producción.  
+- Cada iteración se desarrolla en una rama `feature/<nombre>` partiendo de `dev`; tras QA se fusiona en `dev`. Cuando `dev` esté estable, se abre PR a `main`.
 
-### **Iteración 1 – Capa core & features (1 semana)**
-- Aislar proyecciones en `core/` + tests básicos.  
-- `features/stereonet/*`: Canvas, GridLayer, PlanesLayer, LinesLayer, Legend.  
-- Estado en Zustand; guardado simple a Dexie.  
-**Criterios**: no hay “importes cruzados” UI↔core; datasets persisten offline.
+### Iteraciones propuestas
 
-### **Iteración 2 – Aula (1 semana)**
-- `features/edu/EduTour.tsx`: demo guiada (texto ES/EN).  
-- Import CSV básico (`features/import/CsvDrop.tsx`).  
-- Export PNG/SVG con leyenda y metadatos.  
-**Criterios**: demo reproducible, export correcto con proyección y fecha.
+#### **Iteración A — Refactor modular inicial** (`feature/modules-shell`)
+- Crear estructura de carpetas descrita en §3 (`src/core`, `src/features/stereonet`, `src/ui`, `src/state`, `src/i18n`, `src/data`).
+- Mover archivos actuales a la nueva estructura manteniendo las firmas públicas (`projectLine`, etc.) mediante adaptadores si es necesario.
+- No introducir dependencias nuevas aún. Garantizar que `npm run dev`, `build`, `lint`, `type-check` siguen pasando.
 
-### **Iteración 3 – Opcional backend (1–2 semanas)**
-- Hooks `useCloudSync()` (si Supabase env está presente).  
-- Políticas RLS y tablas mínimas (orientations, classes, submissions).  
-**Criterios**: subida opcional, sin bloquear el uso offline.
+#### **Iteración B — i18n y App Shell** (`feature/i18n-shell`)
+- Añadir setup `i18next/react-i18next` y archivos de traducción ES/EN.
+- Crear `TopNav`, `LanguageSwitch`, reorganizar `App`/`main` para usar el nuevo shell.
+- Revisar textos existentes para usar llaves de traducción. Mantener Dexie y PWA pendientes.
+
+#### **Iteración C — Persistencia local** (`feature/offline-dexie`)
+- Integrar Dexie y crear store (`src/state`) con persistencia local-first.
+- Añadir manejo de errores/sesiones privadas (fallback in-memory).
+- Asegurar migraciones compatibles con datos actuales (si existen).
+
+#### **Iteración D — PWA y assets** (`feature/pwa-upgrade`)
+- Integrar `vite-plugin-pwa`, manifest y service worker según §8.
+- Mover assets necesarios a `public/` y revisar `base` para GitHub Pages.
+- Validar modo offline con `npm run preview` y despliegue en `dev`.
+
+#### **Iteración E — Funcionalidades educativas/import/export** (`feature/edu-suite`)
+- Implementar stubs planificados: `EduTour`, `CsvDrop`, export PNG/SVG con leyenda.
+- Documentar comportamiento y pruebas manuales.
+
+#### **Iteración F — Opcional backend Supabase** (`feature/cloud-sync`)
+- Evaluar integración supeditada a disponer de entorno Supabase. Añadir hooks y políticas sólo si Dexie y PWA están estabilizados.
 
 ---
 
@@ -433,13 +443,13 @@ Implementa el RFC-2025-10 (archivo /docs/RFC-2025-10-stereonet-pwa.md):
 
 ## 15. Checklist de aceptación (v1)
 
-- [ ] Instalación como PWA en iOS/Android/desktop.  
-- [ ] Arranque **sin red** (app‑shell).  
-- [ ] i18n ES/EN con switch persistente.  
-- [ ] Estructura modular en `core/`, `features/`, `ui/`, `state/`.  
-- [ ] Persistencia Dexie correcta (inserción y lectura).  
-- [ ] Export PNG/SVG con leyenda.  
-- [ ] Lint/format OK; Lighthouse PWA ≥ 90.
+- [ ] Estructura modular en `core/`, `features/`, `ui/`, `state/` (Iteración A).  
+- [ ] i18n ES/EN con switch persistente (Iteración B).  
+- [ ] Persistencia Dexie correcta (Iteración C).  
+- [ ] PWA instalable y offline (Iteración D).  
+- [ ] Export PNG/SVG con leyenda y componentes educativos (Iteración E).  
+- [ ] Opcional: Sincronización Supabase cuando se habilite (Iteración F).  
+- [ ] Lint/Type-check/Build OK en todas las iteraciones; Lighthouse PWA ≥ 90 al final de Iteración D.
 
 ---
 
