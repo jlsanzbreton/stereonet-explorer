@@ -1,0 +1,5 @@
+{
+  "name": "Stereonet Explorer",
+  "description": "An interactive web application for plotting and interpreting geological planes and lines using stereographic projection. Visualize and analyze tectonic structures like faults, folds, and foliations.",
+  "requestFramePermissions": []
+}
