@@ -126,7 +126,7 @@ const Stereonet: React.FC<StereonetProps> = ({ data, projection, showGrid, showP
                         .attr('fill', 'none')
                         .attr('stroke', COLORS.PLANE)
                         .attr('stroke-width', 2)
-                        .on('mouseover', (event) => {
+                                .on('mouseover', () => {
                            tooltip.style('visibility', 'visible').text(`Plane: ${item.dipDirection}° / ${item.dip}°`);
                         })
                         .on('mousemove', (event) => {
@@ -158,7 +158,7 @@ const Stereonet: React.FC<StereonetProps> = ({ data, projection, showGrid, showP
                         .attr('width', 6)
                         .attr('height', 6)
                         .attr('fill', COLORS.POLE)
-                        .on('mouseover', (event) => {
+                                .on('mouseover', () => {
                            tooltip.style('visibility', 'visible').text(`Pole: ${pole.trend.toFixed(0)}° / ${pole.plunge.toFixed(0)}° (from plane ${item.dipDirection}° / ${item.dip}°)`);
                         })
                         .on('mousemove', (event) => {
@@ -175,7 +175,7 @@ const Stereonet: React.FC<StereonetProps> = ({ data, projection, showGrid, showP
                     .attr('cy', y)
                     .attr('r', 4)
                     .attr('fill', COLORS.LINE)
-                    .on('mouseover', (event) => {
+                          .on('mouseover', () => {
                        tooltip.style('visibility', 'visible').text(`Line: ${item.trend}° / ${item.plunge}°`);
                     })
                     .on('mousemove', (event) => {

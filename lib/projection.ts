@@ -86,7 +86,7 @@ export const getGreatCirclePath = (plane: Plane, projection: ProjectionType, rad
         // Formulas to find trend/plunge of a line on the plane
         const plunge = Math.asin(Math.sin(dipRad) * Math.cos(alpha));
         
-        let trendOffset = Math.atan2(Math.tan(alpha), Math.cos(dipRad));
+    const trendOffset = Math.atan2(Math.tan(alpha), Math.cos(dipRad));
         const trend = degreesToRadians(plane.dipDirection) + trendOffset;
 
         const { x, y } = projectLine(trend * 180 / Math.PI, plunge * 180 / Math.PI, projection, radius);
