@@ -1,19 +1,17 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-// FIX: Import `Plane` type to correctly type gridline objects.
-// FIX: Import `Point` type for d3 line generator.
-import { StructuralData, ProjectionType, Plane, Point } from '../types';
-import { COLORS } from '../constants';
-import { projectLine, getPoleToPlane, getGreatCirclePath } from '../lib/projection';
+import { StructuralData, ProjectionType, Plane, Point } from '../model/types';
+import { COLORS } from '../model/transforms';
+import { projectLine, getPoleToPlane, getGreatCirclePath } from '@/core/projection';
 
-interface StereonetProps {
+interface StereonetCanvasProps {
     data: StructuralData[];
     projection: ProjectionType;
     showGrid: boolean;
     showPoles: boolean;
 }
 
-const Stereonet: React.FC<StereonetProps> = ({ data, projection, showGrid, showPoles }) => {
+const StereonetCanvas: React.FC<StereonetCanvasProps> = ({ data, projection, showGrid, showPoles }) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [dimensions, setDimensions] = useState({ width: 500, height: 500 });
@@ -200,4 +198,4 @@ const Stereonet: React.FC<StereonetProps> = ({ data, projection, showGrid, showP
     );
 };
 
-export default Stereonet;
+export default StereonetCanvas;

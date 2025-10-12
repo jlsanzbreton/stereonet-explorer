@@ -1,8 +1,7 @@
-
 import React from 'react';
-import { StructuralData } from '../types';
-import { COLORS } from '../constants';
-import TrashIcon from './icons/TrashIcon';
+import { StructuralData } from '../model/types';
+import { COLORS } from '../model/transforms';
+import TrashIcon from '@/ui/icons/TrashIcon';
 
 interface DataTableProps {
     data: StructuralData[];
@@ -52,7 +51,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, onRemove }) => {
                         ))}
                     </tbody>
                 </table>
-                 {data.length === 0 && (
+                {data.length === 0 && (
                     <div className="text-center py-10 text-gray-500">
                         <p>No data added yet.</p>
                         <p className="text-sm">Use the panel on the left to add planes and lines.</p>

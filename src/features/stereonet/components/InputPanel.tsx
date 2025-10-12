@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
-import { Plane, Line } from '../types';
-import PlusIcon from './icons/PlusIcon';
+import { Plane, Line } from '../model/types';
+import PlusIcon from '@/ui/icons/PlusIcon';
 
 interface InputPanelProps {
     onAddData: (item: Omit<Plane, 'id' | 'type' | 'color'> | Omit<Line, 'id' | 'type' | 'color'>, type: 'plane' | 'line') => void;
@@ -83,7 +82,7 @@ const InputPanel: React.FC<InputPanelProps> = ({ onAddData }) => {
                     <span className="text-gray-500">°</span>
                 </div>
                 <button type="submit" className="w-full flex items-center justify-center bg-teal-600 text-white p-2 rounded-md hover:bg-teal-700 transition duration-200">
-                     <PlusIcon />
+                    <PlusIcon />
                     Add Line
                 </button>
             </form>

@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { ProjectionType } from '../types';
+import { ProjectionType } from '../model/types';
 
 interface ToolbarProps {
     projection: ProjectionType;
@@ -44,7 +43,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ projection, setProjection, showGrid, 
                 <Checkbox label="Show Grid" checked={showGrid} onChange={setShowGrid}/>
                 <Checkbox label="Show Poles" checked={showPoles} onChange={setShowPoles}/>
             </div>
-             <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
                 <button onClick={onLoadSample} className="px-3 py-1 text-sm bg-green-500 text-white rounded-md hover:bg-green-600">Load Sample</button>
                 <button onClick={onClear} className="px-3 py-1 text-sm bg-red-500 text-white rounded-md hover:bg-red-600">Clear All</button>
             </div>
