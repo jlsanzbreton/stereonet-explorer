@@ -49,6 +49,8 @@ Referencias técnicas: **PWA manifest** y **Service Workers (MDN/web.dev)**; **V
     projection.ts
     spherical.ts
     fisher.ts         # (stub v1)
+    analysis/         # (placeholder RFC-2025-11: cálculos automáticos)
+      index.ts        # (stub creado en Iteración E)
   /features
     /stereonet
       components/
@@ -67,6 +69,13 @@ Referencias técnicas: **PWA manifest** y **Service Workers (MDN/web.dev)**; **V
         EduTour.tsx    # (stub con TODO)
     /import
       CsvDrop.tsx      # (stub)
+    /map               # (placeholder RFC-2025-11: Leaflet + GeoJSON)
+      MapView.tsx      # (stub creado en Iteración E)
+      useGeoLayers.ts  # (stub)
+    /layers            # (placeholder RFC-2025-11: gestor de capas)
+      LayerManager.tsx # (stub)
+      model/
+        layerTypes.ts  # (stub)
   /ui
     AppShell.tsx       # layout + TopNav + Footer
     TopNav.tsx
@@ -83,6 +92,8 @@ Referencias técnicas: **PWA manifest** y **Service Workers (MDN/web.dev)**; **V
     locales/
       en/common.json
       es/common.json
+  /services
+    validation.ts      # (placeholder RFC-2025-11: validaciones GeoJSON/CSV)
   /pwa
     sw.ts              # generado por vite-plugin-pwa (virtual)
   app.tsx
@@ -100,9 +111,10 @@ tsconfig.json
 
 **Motivación**  
 - **Separación de intereses:** `core` (puro TS y testable) vs `features` (UI/estado).  
-- **Crecimiento seguro:** `features/*` modulares, fáciles de code-split.  
+- **Crecimiento seguro:** `features/*` modulares, fáciles de code-split y preparadas para el eje mapa/capas.  
 - **PWA** con `vite-plugin-pwa` para “app‑shell” y _autoUpdate_.  
-- **Local‑first** con Dexie; `backend/*` pluggable (Supabase en v2).
+- **Local‑first** con Dexie; `backend/*` pluggable (Supabase en v2).  
+- **Extensibilidad controlada:** `core/analysis`, `features/map`, `features/layers` y `services/validation` quedan definidos como _placeholders_ creados en Iteración E para acelerar la RFC-2025-11 sin refactors.
 
 ---
 
@@ -367,24 +379,26 @@ export function projectLine(trendDeg: number, plungeDeg: number, radius: number,
 #### **Iteración B — i18n y App Shell** (`feature/i18n-shell`)
 - Añadir setup `i18next/react-i18next` y archivos de traducción ES/EN.
 - Crear `TopNav`, `LanguageSwitch`, reorganizar `App`/`main` para usar el nuevo shell.
-- Revisar textos existentes para usar llaves de traducción. Mantener Dexie y PWA pendientes.
+- Revisar textos existentes para usar llaves de traducción, añadiendo namespaces y claves pensadas para vistas futuras (`map`, `layers`, `analysis`). Mantener Dexie y PWA pendientes.
 
 #### **Iteración C — Persistencia local** (`feature/offline-dexie`)
 - Integrar Dexie y crear store (`src/state`) con persistencia local-first.
 - Añadir manejo de errores/sesiones privadas (fallback in-memory).
-- Asegurar migraciones compatibles con datos actuales (si existen).
+- Extender el esquema pensando en futuras entidades (`layers`, `geoSources`) sin activarlas todavía; documentar migraciones compatibles con datos actuales (si existen).
 
 #### **Iteración D — PWA y assets** (`feature/pwa-upgrade`)
 - Integrar `vite-plugin-pwa`, manifest y service worker según §8.
 - Mover assets necesarios a `public/` y revisar `base` para GitHub Pages.
-- Validar modo offline con `npm run preview` y despliegue en `dev`.
+- Validar modo offline con `npm run preview` y despliegue en `dev`, asegurando que los _placeholders_ de mapas/capas quedarán cacheables cuando se activen (documentar requisitos de assets Leaflet).
 
 #### **Iteración E — Funcionalidades educativas/import/export** (`feature/edu-suite`)
 - Implementar stubs planificados: `EduTour`, `CsvDrop`, export PNG/SVG con leyenda.
-- Documentar comportamiento y pruebas manuales.
+- Crear stubs tipados para `features/map/MapView.tsx`, `features/layers/LayerManager.tsx`, `core/analysis/index.ts` y `services/validation.ts`, dejando TODO referenciados a la RFC-2025-11.
+- Documentar comportamiento y pruebas manuales, incluida la disponibilidad de estas extensiones.
 
 #### **Iteración F — Opcional backend Supabase** (`feature/cloud-sync`)
 - Evaluar integración supeditada a disponer de entorno Supabase. Añadir hooks y políticas sólo si Dexie y PWA están estabilizados.
+- Publicar la guía de colaboración mínima (licencia, datasets locales) y enlazar la RFC-2025-11 como siguiente fase antes de habilitar sincronización real.
 
 ---
 
