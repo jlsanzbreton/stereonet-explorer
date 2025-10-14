@@ -8,15 +8,15 @@ Branch de integración: `dev`
 - **Rama:** `feature/modules-shell`
 - **Resumen:** Estructura de carpetas lista según RFC-2025-10 §3, manteniendo firmas públicas.
 
-## Ticket B — i18n y App Shell
-- **Rama sugerida:** `feature/i18n-shell`
-- **Objetivo:** Integrar `i18next/react-i18next`, añadir `TopNav`, `LanguageSwitch` y reorganizar `App`/`main` para consumir traducciones ES/EN contemplando futuras vistas (`map`, `layers`, `analysis`).
+## Ticket B — i18n y App Shell *(Completado 2025-10-14)*
+- **Rama:** `feature/i18n-shell`
+- **Resumen:** Integrado `i18next/react-i18next`, creado `LanguageSwitch`, actualizado `App`, `TopNav` y componentes para consumir llaves ES/EN con persistencia en `localStorage`. Claves preparadas para `map`, `layers` y `analysis` según RFC-2025-11.
 - **Criterios de aceptación:**
-  - Textos clave traducidos vía i18n y namespaces preparados para módulos nuevos.
-  - Cambio de idioma refleja la UI sin recargar la página.
-  - Tooling sigue pasando (`lint`, `type-check`, `build`).
+  - Textos clave traducidos vía i18n y namespaces preparados para módulos nuevos ✔️
+  - Cambio de idioma refleja la UI sin recargar la página ✔️
+  - Tooling (`lint`, `type-check`, `build`) ejecutado sin errores ✔️
 - **Dependencias:** Ticket A.
-- **Notas de preparación RFC-2025-11:** definir claves compartidas para MapView, LayerManager y análisis.
+- **Notas:** ver `src/i18n/locales/*` para llaves extendidas de MapView/LayerManager/Analysis.
 
 ## Ticket C — Persistencia local con Dexie
 - **Rama sugerida:** `feature/offline-dexie`

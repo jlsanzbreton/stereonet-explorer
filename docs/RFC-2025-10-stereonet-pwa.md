@@ -376,10 +376,10 @@ export function projectLine(trendDeg: number, plungeDeg: number, radius: number,
 - Mover archivos actuales a la nueva estructura manteniendo las firmas públicas (`projectLine`, etc.) mediante adaptadores si es necesario.
 - No introducir dependencias nuevas aún. Garantizar que `npm run dev`, `build`, `lint`, `type-check` siguen pasando.
 
-#### **Iteración B — i18n y App Shell** (`feature/i18n-shell`)
 - Añadir setup `i18next/react-i18next` y archivos de traducción ES/EN.
 - Crear `TopNav`, `LanguageSwitch`, reorganizar `App`/`main` para usar el nuevo shell.
 - Revisar textos existentes para usar llaves de traducción, añadiendo namespaces y claves pensadas para vistas futuras (`map`, `layers`, `analysis`). Mantener Dexie y PWA pendientes.
+- **Estado:** Completado el 2025-10-14 en `feature/i18n-shell`.
 
 #### **Iteración C — Persistencia local** (`feature/offline-dexie`)
 - Integrar Dexie y crear store (`src/state`) con persistencia local-first.
@@ -457,8 +457,8 @@ Implementa el RFC-2025-10 (archivo /docs/RFC-2025-10-stereonet-pwa.md):
 
 ## 15. Checklist de aceptación (v1)
 
-- [ ] Estructura modular en `core/`, `features/`, `ui/`, `state/` (Iteración A).  
-- [ ] i18n ES/EN con switch persistente (Iteración B).  
+- [x] Estructura modular en `core/`, `features/`, `ui/`, `state/` (Iteración A).  
+- [x] i18n ES/EN con switch persistente (Iteración B).  
 - [ ] Persistencia Dexie correcta (Iteración C).  
 - [ ] PWA instalable y offline (Iteración D).  
 - [ ] Export PNG/SVG con leyenda y componentes educativos (Iteración E).  
