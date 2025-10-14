@@ -1,16 +1,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { StructuralData } from '../model/types';
 import { COLORS } from '../model/transforms';
 import TrashIcon from '@/ui/icons/TrashIcon';
+import { selectStructuralData, useStereonetStore } from '@/state/store';
 
-interface DataTableProps {
-    data: StructuralData[];
-    onRemove: (id: string) => void;
-}
-
-const DataTable: React.FC<DataTableProps> = ({ data, onRemove }) => {
+const DataTable: React.FC = () => {
     const { t } = useTranslation();
+    const data = useStereonetStore(selectStructuralData);
+    const removeById = useStereonetStore(state => state.removeById);
     const degreeSymbol = t('units.degree');
     return (
         <div className="bg-white p-4 rounded-lg shadow-lg h-full flex flex-col">
@@ -49,7 +46,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, onRemove }) => {
                                 </td>
                                 <td className="px-4 py-2 text-right">
                                     <button
-                                        onClick={() => onRemove(item.id)}
+                                        onClick={() => { void removeById(item.id); }}
                                         className="text-gray-400 hover:text-red-500 p-1"
                                         title={t('table.tooltip.remove')}
                                         aria-label={t('table.tooltip.remove')}

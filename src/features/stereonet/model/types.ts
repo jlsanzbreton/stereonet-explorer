@@ -5,7 +5,7 @@ export enum ProjectionType {
 }
 
 interface BaseData {
-    id: string;
+    id: number | string;
     type: 'plane' | 'line';
 }
 
