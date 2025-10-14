@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
+import { useTranslation } from 'react-i18next';
 import { StructuralData, ProjectionType, Plane, Point } from '../model/types';
 import { COLORS } from '../model/transforms';
 import { projectLine, getPoleToPlane, getGreatCirclePath } from '@/core/projection';
@@ -15,6 +16,7 @@ const StereonetCanvas: React.FC<StereonetCanvasProps> = ({ data, projection, sho
     const svgRef = useRef<SVGSVGElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [dimensions, setDimensions] = useState({ width: 500, height: 500 });
+    const { t, i18n } = useTranslation();
 
     useEffect(() => {
         const resizeObserver = new ResizeObserver(entries => {
@@ -96,10 +98,10 @@ const StereonetCanvas: React.FC<StereonetCanvasProps> = ({ data, projection, sho
         
         // Cardinal directions
         const directions = [
-            { label: 'N', x: 0, y: -radius - 10 },
-            { label: 'S', x: 0, y: radius + 20 },
-            { label: 'E', x: radius + 10, y: 5 },
-            { label: 'W', x: -radius - 20, y: 5 },
+            { label: t('canvas.cardinal.north'), x: 0, y: -radius - 10 },
+            { label: t('canvas.cardinal.south'), x: 0, y: radius + 20 },
+            { label: t('canvas.cardinal.east'), x: radius + 10, y: 5 },
+            { label: t('canvas.cardinal.west'), x: -radius - 20, y: 5 },
         ];
         g.selectAll('.cardinal-label')
             .data(directions)
@@ -124,14 +126,16 @@ const StereonetCanvas: React.FC<StereonetCanvasProps> = ({ data, projection, sho
                         .attr('fill', 'none')
                         .attr('stroke', COLORS.PLANE)
                         .attr('stroke-width', 2)
-                                .on('mouseover', () => {
-                           tooltip.style('visibility', 'visible').text(`Plane: ${item.dipDirection}° / ${item.dip}°`);
+                        .on('mouseover', () => {
+                            tooltip
+                                .style('visibility', 'visible')
+                                .text(t('canvas.tooltip.plane', { dipDirection: item.dipDirection, dip: item.dip }));
                         })
                         .on('mousemove', (event) => {
                             tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
                         })
                         .on('mouseout', () => {
-                           tooltip.style('visibility', 'hidden');
+                            tooltip.style('visibility', 'hidden');
                         });
                     
                     // Add label for the plane
@@ -145,7 +149,7 @@ const StereonetCanvas: React.FC<StereonetCanvasProps> = ({ data, projection, sho
                         .attr('font-size', '10px')
                         .attr('fill', COLORS.PLANE)
                         .style('pointer-events', 'none')
-                        .text(`${item.dipDirection}°/${item.dip}°`);
+                        .text(t('canvas.labels.plane', { dipDirection: item.dipDirection, dip: item.dip }));
                 }
                 if (showPoles) {
                     const pole = getPoleToPlane(item);
@@ -156,14 +160,23 @@ const StereonetCanvas: React.FC<StereonetCanvasProps> = ({ data, projection, sho
                         .attr('width', 6)
                         .attr('height', 6)
                         .attr('fill', COLORS.POLE)
-                                .on('mouseover', () => {
-                           tooltip.style('visibility', 'visible').text(`Pole: ${pole.trend.toFixed(0)}° / ${pole.plunge.toFixed(0)}° (from plane ${item.dipDirection}° / ${item.dip}°)`);
+                        .on('mouseover', () => {
+                            tooltip
+                                .style('visibility', 'visible')
+                                .text(
+                                    t('canvas.tooltip.pole', {
+                                        trend: pole.trend.toFixed(0),
+                                        plunge: pole.plunge.toFixed(0),
+                                        planeDipDirection: item.dipDirection,
+                                        planeDip: item.dip,
+                                    })
+                                );
                         })
                         .on('mousemove', (event) => {
                             tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
                         })
                         .on('mouseout', () => {
-                           tooltip.style('visibility', 'hidden');
+                            tooltip.style('visibility', 'hidden');
                         });
                 }
             } else if (item.type === 'line') {
@@ -173,14 +186,16 @@ const StereonetCanvas: React.FC<StereonetCanvasProps> = ({ data, projection, sho
                     .attr('cy', y)
                     .attr('r', 4)
                     .attr('fill', COLORS.LINE)
-                          .on('mouseover', () => {
-                       tooltip.style('visibility', 'visible').text(`Line: ${item.trend}° / ${item.plunge}°`);
+                    .on('mouseover', () => {
+                        tooltip
+                            .style('visibility', 'visible')
+                            .text(t('canvas.tooltip.line', { trend: item.trend, plunge: item.plunge }));
                     })
                     .on('mousemove', (event) => {
                         tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
                     })
                     .on('mouseout', () => {
-                       tooltip.style('visibility', 'hidden');
+                        tooltip.style('visibility', 'hidden');
                     });
             }
         });
@@ -189,7 +204,7 @@ const StereonetCanvas: React.FC<StereonetCanvasProps> = ({ data, projection, sho
            tooltip.remove();
         };
 
-    }, [data, projection, dimensions, showGrid, showPoles]);
+    }, [data, projection, dimensions, showGrid, showPoles, t, i18n.language]);
 
     return (
         <div ref={containerRef} className="w-full h-full">

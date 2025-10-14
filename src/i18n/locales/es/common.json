@@ -1,0 +1,98 @@
+{
+  "app": {
+    "title": "Stereonet Explorer"
+  },
+  "nav": {
+    "explore": "Explorar",
+    "classroom": "Modo Aula",
+    "settings": "Configuración",
+    "map": "Mapa",
+    "layers": "Capas",
+    "analysis": "Análisis",
+    "primary": "Navegación principal"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "Inglés",
+    "es": "Español"
+  },
+  "input": {
+    "plane": {
+      "title": "Añadir plano",
+      "submit": "Añadir plano"
+    },
+    "line": {
+      "title": "Añadir línea",
+      "submit": "Añadir línea"
+    }
+  },
+  "labels": {
+    "dipDirection": "Dirección de buzamiento",
+    "dip": "Buzamiento",
+    "trend": "Rumbo",
+    "plunge": "Inclinación"
+  },
+  "units": {
+    "degree": "°"
+  },
+  "toolbar": {
+    "projection": {
+      "label": "Proyección:",
+      "equalArea": "Igual-área (Schmidt)",
+      "equalAngle": "Ángulo igual (Wulff)"
+    },
+    "options": {
+      "showGrid": "Mostrar retícula",
+      "showPoles": "Mostrar polos"
+    },
+    "actions": {
+      "loadSample": "Cargar muestra",
+      "clearAll": "Limpiar todo"
+    }
+  },
+  "table": {
+    "title": "Datos estructurales",
+    "headers": {
+      "type": "Tipo",
+      "azimuth": "Azimut",
+      "inclination": "Inclinación",
+      "actions": "Acciones"
+    },
+    "badge": {
+      "plane": "Plano",
+      "line": "Línea"
+    },
+    "tooltip": {
+      "remove": "Eliminar elemento"
+    },
+    "empty": {
+      "title": "Aún no se han agregado datos.",
+      "description": "Usa el panel de la izquierda para añadir planos y líneas."
+    }
+  },
+  "canvas": {
+    "cardinal": {
+      "north": "N",
+      "south": "S",
+      "east": "E",
+      "west": "O"
+    },
+    "labels": {
+      "plane": "{{dipDirection}}°/{{dip}}°"
+    },
+    "tooltip": {
+      "plane": "Plano: {{dipDirection}}° / {{dip}}°",
+      "line": "Línea: {{trend}}° / {{plunge}}°",
+      "pole": "Polo: {{trend}}° / {{plunge}}° (desde el plano {{planeDipDirection}}° / {{planeDip}}°)"
+    }
+  },
+  "footer": {
+    "note": "Diseñado para análisis de geología estructural. Todas las proyecciones son del hemisferio inferior."
+  },
+  "analysis": {
+    "summary": {
+      "title": "Resumen de análisis",
+      "placeholder": "Las herramientas de interpretación estarán disponibles pronto."
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "app": {
+    "title": "Stereonet Explorer"
+  },
+  "nav": {
+    "explore": "Explore",
+    "classroom": "Classroom Mode",
+    "settings": "Settings",
+    "map": "Map",
+    "layers": "Layers",
+    "analysis": "Analysis",
+    "primary": "Primary navigation"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "es": "Spanish"
+  },
+  "input": {
+    "plane": {
+      "title": "Add Plane",
+      "submit": "Add Plane"
+    },
+    "line": {
+      "title": "Add Line",
+      "submit": "Add Line"
+    }
+  },
+  "labels": {
+    "dipDirection": "Dip Direction",
+    "dip": "Dip",
+    "trend": "Trend",
+    "plunge": "Plunge"
+  },
+  "units": {
+    "degree": "°"
+  },
+  "toolbar": {
+    "projection": {
+      "label": "Projection:",
+      "equalArea": "Equal-Area (Schmidt)",
+      "equalAngle": "Equal-Angle (Wulff)"
+    },
+    "options": {
+      "showGrid": "Show Grid",
+      "showPoles": "Show Poles"
+    },
+    "actions": {
+      "loadSample": "Load Sample",
+      "clearAll": "Clear All"
+    }
+  },
+  "table": {
+    "title": "Structural Data",
+    "headers": {
+      "type": "Type",
+      "azimuth": "Azimuth",
+      "inclination": "Inclination",
+      "actions": "Actions"
+    },
+    "badge": {
+      "plane": "Plane",
+      "line": "Line"
+    },
+    "tooltip": {
+      "remove": "Remove item"
+    },
+    "empty": {
+      "title": "No data added yet.",
+      "description": "Use the panel on the left to add planes and lines."
+    }
+  },
+  "canvas": {
+    "cardinal": {
+      "north": "N",
+      "south": "S",
+      "east": "E",
+      "west": "W"
+    },
+    "labels": {
+      "plane": "{{dipDirection}}°/{{dip}}°"
+    },
+    "tooltip": {
+      "plane": "Plane: {{dipDirection}}° / {{dip}}°",
+      "line": "Line: {{trend}}° / {{plunge}}°",
+      "pole": "Pole: {{trend}}° / {{plunge}}° (from plane {{planeDipDirection}}° / {{planeDip}}°)"
+    }
+  },
+  "footer": {
+    "note": "Built for structural geology analysis. All projections are lower-hemisphere."
+  },
+  "analysis": {
+    "summary": {
+      "title": "Analysis Summary",
+      "placeholder": "Interpretation tools will be available soon."
+    }
+  }
+}

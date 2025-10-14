@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plane, Line } from '../model/types';
 import PlusIcon from '@/ui/icons/PlusIcon';
 
@@ -7,6 +8,7 @@ interface InputPanelProps {
 }
 
 const InputPanel: React.FC<InputPanelProps> = ({ onAddData }) => {
+    const { t } = useTranslation();
     const [planeDipDir, setPlaneDipDir] = useState<number>(45);
     const [planeDip, setPlaneDip] = useState<number>(30);
     const [lineTrend, setLineTrend] = useState<number>(120);
@@ -25,9 +27,9 @@ const InputPanel: React.FC<InputPanelProps> = ({ onAddData }) => {
     return (
         <div className="bg-white p-4 rounded-lg shadow-lg space-y-6">
             <form onSubmit={handleAddPlane} className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Add Plane</h3>
+                <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">{t('input.plane.title')}</h3>
                 <div className="flex items-center space-x-2">
-                    <label htmlFor="dipDir" className="w-28 font-medium text-sm">Dip Direction</label>
+                    <label htmlFor="dipDir" className="w-28 font-medium text-sm">{t('labels.dipDirection')}</label>
                     <input
                         id="dipDir"
                         type="number"
@@ -36,10 +38,10 @@ const InputPanel: React.FC<InputPanelProps> = ({ onAddData }) => {
                         className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                         min="0" max="360"
                     />
-                    <span className="text-gray-500">°</span>
+                    <span className="text-gray-500">{t('units.degree')}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <label htmlFor="dip" className="w-28 font-medium text-sm">Dip</label>
+                    <label htmlFor="dip" className="w-28 font-medium text-sm">{t('labels.dip')}</label>
                     <input
                         id="dip"
                         type="number"
@@ -48,17 +50,17 @@ const InputPanel: React.FC<InputPanelProps> = ({ onAddData }) => {
                         className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                         min="0" max="90"
                     />
-                    <span className="text-gray-500">°</span>
+                    <span className="text-gray-500">{t('units.degree')}</span>
                 </div>
                 <button type="submit" className="w-full flex items-center justify-center bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200">
                     <PlusIcon />
-                    Add Plane
+                    {t('input.plane.submit')}
                 </button>
             </form>
             <form onSubmit={handleAddLine} className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">Add Line</h3>
+                <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">{t('input.line.title')}</h3>
                 <div className="flex items-center space-x-2">
-                    <label htmlFor="trend" className="w-28 font-medium text-sm">Trend</label>
+                    <label htmlFor="trend" className="w-28 font-medium text-sm">{t('labels.trend')}</label>
                     <input
                         id="trend"
                         type="number"
@@ -67,10 +69,10 @@ const InputPanel: React.FC<InputPanelProps> = ({ onAddData }) => {
                         className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                         min="0" max="360"
                     />
-                    <span className="text-gray-500">°</span>
+                    <span className="text-gray-500">{t('units.degree')}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <label htmlFor="plunge" className="w-28 font-medium text-sm">Plunge</label>
+                    <label htmlFor="plunge" className="w-28 font-medium text-sm">{t('labels.plunge')}</label>
                     <input
                         id="plunge"
                         type="number"
@@ -79,11 +81,11 @@ const InputPanel: React.FC<InputPanelProps> = ({ onAddData }) => {
                         className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                         min="0" max="90"
                     />
-                    <span className="text-gray-500">°</span>
+                    <span className="text-gray-500">{t('units.degree')}</span>
                 </div>
                 <button type="submit" className="w-full flex items-center justify-center bg-teal-600 text-white p-2 rounded-md hover:bg-teal-700 transition duration-200">
                     <PlusIcon />
-                    Add Line
+                    {t('input.line.submit')}
                 </button>
             </form>
         </div>

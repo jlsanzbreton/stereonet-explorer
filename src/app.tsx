@@ -1,6 +1,6 @@
-
 import React, { useState, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { useTranslation } from 'react-i18next';
 import InputPanel from '@/features/stereonet/components/InputPanel';
 import StereonetCanvas from '@/features/stereonet/components/StereonetCanvas';
 import DataTable from '@/features/stereonet/components/DataTable';
@@ -10,6 +10,7 @@ import { SAMPLE_DATA } from '@/features/stereonet/model/transforms';
 import TopNav from '@/ui/TopNav';
 
 const App: React.FC = () => {
+    const { t } = useTranslation();
     const [data, setData] = useState<StructuralData[]>(SAMPLE_DATA);
     const [projection, setProjection] = useState<ProjectionType>(ProjectionType.Schmidt);
     const [showGrid, setShowGrid] = useState<boolean>(true);
@@ -64,7 +65,7 @@ const App: React.FC = () => {
                 </div>
             </main>
             <footer className="text-center p-4 text-sm text-gray-500">
-                <p>Built for structural geology analysis. All projections are lower-hemisphere.</p>
+                <p>{t('footer.note')}</p>
             </footer>
         </div>
     );

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ProjectionType } from '../model/types';
 
 interface ToolbarProps {
@@ -13,6 +14,7 @@ interface ToolbarProps {
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ projection, setProjection, showGrid, setShowGrid, showPoles, setShowPoles, onClear, onLoadSample }) => {
+    const { t } = useTranslation();
 
     const ToggleButton: React.FC<{ label: string; value: string; current: string; onClick: (value: string) => void; }> = ({ label, value, current, onClick }) => (
         <button
@@ -33,19 +35,19 @@ const Toolbar: React.FC<ToolbarProps> = ({ projection, setProjection, showGrid, 
     return (
         <div className="flex flex-wrap items-center justify-between gap-4 p-2 border-b mb-4">
             <div className="flex items-center gap-4">
-                <span className="text-sm font-semibold">Projection:</span>
+                <span className="text-sm font-semibold">{t('toolbar.projection.label')}</span>
                 <div className="flex items-center bg-gray-200 rounded-md">
-                    <ToggleButton label="Equal-Area (Schmidt)" value={ProjectionType.Schmidt} current={projection} onClick={(v) => setProjection(v as ProjectionType)} />
-                    <ToggleButton label="Equal-Angle (Wulff)" value={ProjectionType.Wulff} current={projection} onClick={(v) => setProjection(v as ProjectionType)} />
+                    <ToggleButton label={t('toolbar.projection.equalArea')} value={ProjectionType.Schmidt} current={projection} onClick={(v) => setProjection(v as ProjectionType)} />
+                    <ToggleButton label={t('toolbar.projection.equalAngle')} value={ProjectionType.Wulff} current={projection} onClick={(v) => setProjection(v as ProjectionType)} />
                 </div>
             </div>
             <div className="flex items-center gap-4">
-                <Checkbox label="Show Grid" checked={showGrid} onChange={setShowGrid}/>
-                <Checkbox label="Show Poles" checked={showPoles} onChange={setShowPoles}/>
+                <Checkbox label={t('toolbar.options.showGrid')} checked={showGrid} onChange={setShowGrid}/>
+                <Checkbox label={t('toolbar.options.showPoles')} checked={showPoles} onChange={setShowPoles}/>
             </div>
             <div className="flex items-center gap-2">
-                <button onClick={onLoadSample} className="px-3 py-1 text-sm bg-green-500 text-white rounded-md hover:bg-green-600">Load Sample</button>
-                <button onClick={onClear} className="px-3 py-1 text-sm bg-red-500 text-white rounded-md hover:bg-red-600">Clear All</button>
+                <button onClick={onLoadSample} className="px-3 py-1 text-sm bg-green-500 text-white rounded-md hover:bg-green-600">{t('toolbar.actions.loadSample')}</button>
+                <button onClick={onClear} className="px-3 py-1 text-sm bg-red-500 text-white rounded-md hover:bg-red-600">{t('toolbar.actions.clearAll')}</button>
             </div>
         </div>
     );

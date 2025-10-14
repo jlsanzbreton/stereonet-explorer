@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StructuralData } from '../model/types';
 import { COLORS } from '../model/transforms';
 import TrashIcon from '@/ui/icons/TrashIcon';
@@ -9,17 +10,19 @@ interface DataTableProps {
 }
 
 const DataTable: React.FC<DataTableProps> = ({ data, onRemove }) => {
+    const { t } = useTranslation();
+    const degreeSymbol = t('units.degree');
     return (
         <div className="bg-white p-4 rounded-lg shadow-lg h-full flex flex-col">
-            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Structural Data</h3>
+            <h3 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">{t('table.title')}</h3>
             <div className="flex-grow overflow-y-auto">
                 <table className="w-full text-sm text-left">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0">
                         <tr>
-                            <th scope="col" className="px-4 py-2">Type</th>
-                            <th scope="col" className="px-4 py-2">Azimuth</th>
-                            <th scope="col" className="px-4 py-2">Inclination</th>
-                            <th scope="col" className="px-4 py-2"></th>
+                            <th scope="col" className="px-4 py-2">{t('table.headers.type')}</th>
+                            <th scope="col" className="px-4 py-2">{t('table.headers.azimuth')}</th>
+                            <th scope="col" className="px-4 py-2">{t('table.headers.inclination')}</th>
+                            <th scope="col" className="px-4 py-2 text-right">{t('table.headers.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -33,16 +36,23 @@ const DataTable: React.FC<DataTableProps> = ({ data, onRemove }) => {
                                             color: item.type === 'plane' ? COLORS.PLANE : COLORS.LINE
                                         }}
                                     >
-                                        {item.type}
+                                        {item.type === 'plane' ? t('table.badge.plane') : t('table.badge.line')}
                                     </span>
                                 </td>
-                                <td className="px-4 py-2">{item.type === 'plane' ? item.dipDirection : item.trend}°</td>
-                                <td className="px-4 py-2">{item.type === 'plane' ? item.dip : item.plunge}°</td>
+                                <td className="px-4 py-2">
+                                    {item.type === 'plane' ? item.dipDirection : item.trend}
+                                    {degreeSymbol}
+                                </td>
+                                <td className="px-4 py-2">
+                                    {item.type === 'plane' ? item.dip : item.plunge}
+                                    {degreeSymbol}
+                                </td>
                                 <td className="px-4 py-2 text-right">
                                     <button
                                         onClick={() => onRemove(item.id)}
                                         className="text-gray-400 hover:text-red-500 p-1"
-                                        title="Remove item"
+                                        title={t('table.tooltip.remove')}
+                                        aria-label={t('table.tooltip.remove')}
                                     >
                                         <TrashIcon />
                                     </button>
@@ -53,8 +63,8 @@ const DataTable: React.FC<DataTableProps> = ({ data, onRemove }) => {
                 </table>
                 {data.length === 0 && (
                     <div className="text-center py-10 text-gray-500">
-                        <p>No data added yet.</p>
-                        <p className="text-sm">Use the panel on the left to add planes and lines.</p>
+                        <p>{t('table.empty.title')}</p>
+                        <p className="text-sm">{t('table.empty.description')}</p>
                     </div>
                 )}
             </div>
