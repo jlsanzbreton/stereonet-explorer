@@ -1,22 +1,20 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { useTranslation } from 'react-i18next';
-import { StructuralData, ProjectionType, Plane, Point } from '../model/types';
+import { Plane, Point } from '../model/types';
 import { COLORS } from '../model/transforms';
 import { projectLine, getPoleToPlane, getGreatCirclePath } from '@/core/projection';
+import { selectStructuralData, useStereonetStore } from '@/state/store';
 
-interface StereonetCanvasProps {
-    data: StructuralData[];
-    projection: ProjectionType;
-    showGrid: boolean;
-    showPoles: boolean;
-}
-
-const StereonetCanvas: React.FC<StereonetCanvasProps> = ({ data, projection, showGrid, showPoles }) => {
+const StereonetCanvas: React.FC = () => {
     const svgRef = useRef<SVGSVGElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [dimensions, setDimensions] = useState({ width: 500, height: 500 });
     const { t, i18n } = useTranslation();
+    const data = useStereonetStore(selectStructuralData);
+    const projection = useStereonetStore(state => state.projection);
+    const showGrid = useStereonetStore(state => state.showGrid);
+    const showPoles = useStereonetStore(state => state.showPoles);
 
     useEffect(() => {
         const resizeObserver = new ResizeObserver(entries => {

@@ -18,14 +18,14 @@ Branch de integración: `dev`
 - **Dependencias:** Ticket A.
 - **Notas:** ver `src/i18n/locales/*` para llaves extendidas de MapView/LayerManager/Analysis.
 
-## Ticket C — Persistencia local con Dexie
-- **Rama sugerida:** `feature/offline-dexie`
-- **Objetivo:** Integrar Dexie, crear store en `src/state` con persistencia local-first, manejo de fallbacks y campos preparados para `layers` y `geoSources` (sin activarlos aún).
+## Ticket C — Persistencia local con Dexie *(Completado 2025-10-16)*
+- **Rama:** `feature/offline-dexie`
+- **Resumen:** Creado `src/state/store.ts` con Zustand+Dexie (IndexedDB) para persistir orientaciones, proyectores y flags UI. Incluye seed automático de `SAMPLE_DATA`, sincronizacion bidireccional con Dexie y fallback en memoria cuando IndexedDB no está disponible.
 - **Criterios de aceptación:**
-  - Altas/Bajas/Ediciones persisten tras recargar.
-  - Fallos de Dexie no bloquean la app (fallback en memoria documentado).
+  - Altas/Bajas/Ediciones persisten tras recargar ✔️
+  - Fallos de Dexie no bloquean la app (fallback en memoria documentado) ✔️
 - **Dependencias:** Tickets A y B.
-- **Notas de preparación RFC-2025-11:** documentar migraciones Dexie v2 y contratos de datos compartidos.
+- **Notas:** Schema incluye tablas `layers` y `geoSources` para RFC-2025-11; ver documentación de fallback en `src/state/README.md`.
 
 ## Ticket D — PWA y assets
 - **Rama sugerida:** `feature/pwa-upgrade`

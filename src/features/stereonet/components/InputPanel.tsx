@@ -1,27 +1,25 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plane, Line } from '../model/types';
 import PlusIcon from '@/ui/icons/PlusIcon';
+import { useStereonetStore } from '@/state/store';
 
-interface InputPanelProps {
-    onAddData: (item: Omit<Plane, 'id' | 'type' | 'color'> | Omit<Line, 'id' | 'type' | 'color'>, type: 'plane' | 'line') => void;
-}
-
-const InputPanel: React.FC<InputPanelProps> = ({ onAddData }) => {
+const InputPanel: React.FC = () => {
     const { t } = useTranslation();
+    const addPlane = useStereonetStore(state => state.addPlane);
+    const addLine = useStereonetStore(state => state.addLine);
     const [planeDipDir, setPlaneDipDir] = useState<number>(45);
     const [planeDip, setPlaneDip] = useState<number>(30);
     const [lineTrend, setLineTrend] = useState<number>(120);
     const [linePlunge, setLinePlunge] = useState<number>(25);
 
-    const handleAddPlane = (e: React.FormEvent) => {
+    const handleAddPlane = async (e: React.FormEvent) => {
         e.preventDefault();
-        onAddData({ dipDirection: planeDipDir, dip: planeDip }, 'plane');
+        await addPlane({ dipDirection: planeDipDir, dip: planeDip });
     };
 
-    const handleAddLine = (e: React.FormEvent) => {
+    const handleAddLine = async (e: React.FormEvent) => {
         e.preventDefault();
-        onAddData({ trend: lineTrend, plunge: linePlunge }, 'line');
+        await addLine({ trend: lineTrend, plunge: linePlunge });
     };
 
     return (

@@ -382,9 +382,10 @@ export function projectLine(trendDeg: number, plungeDeg: number, radius: number,
 - **Estado:** Completado el 2025-10-14 en `feature/i18n-shell`.
 
 #### **Iteración C — Persistencia local** (`feature/offline-dexie`)
-- Integrar Dexie y crear store (`src/state`) con persistencia local-first.
-- Añadir manejo de errores/sesiones privadas (fallback in-memory).
-- Extender el esquema pensando en futuras entidades (`layers`, `geoSources`) sin activarlas todavía; documentar migraciones compatibles con datos actuales (si existen).
+- **Estado:** Completada el 2025-10-16 (pendiente de merge a `dev`).
+- Integrado Zustand + Dexie en `src/state/store.ts` para persisitir orientaciones con seed automático de `SAMPLE_DATA`.
+- Añadido fallback in-memory cuando IndexedDB falla (ej. modo privado iOS) y bandera `isDexieFallback` documentada.
+- Schema anticipa tablas `layers` y `geoSources`; se describen migraciones iniciales en `src/state/README.md`.
 
 #### **Iteración D — PWA y assets** (`feature/pwa-upgrade`)
 - Integrar `vite-plugin-pwa`, manifest y service worker según §8.
