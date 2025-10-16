@@ -1,6 +1,7 @@
-import './i18n';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { registerSW } from 'virtual:pwa-register';
+import './i18n';
 import App from './app';
 
 const rootElement = document.getElementById('root');
@@ -9,6 +10,15 @@ if (!rootElement) {
 }
 
 const root = ReactDOM.createRoot(rootElement);
+
+registerSW({
+  immediate: true,
+  onOfflineReady() {
+    // Surface a trace so QA can verify caching during preview builds.
+    console.info('Stereonet Explorer is ready to work offline.');
+  }
+});
+
 root.render(
   <React.StrictMode>
     <App />
