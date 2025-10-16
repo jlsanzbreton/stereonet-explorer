@@ -388,9 +388,11 @@ export function projectLine(trendDeg: number, plungeDeg: number, radius: number,
 - Schema anticipa tablas `layers` y `geoSources`; se describen migraciones iniciales en `src/state/README.md`.
 
 #### **Iteración D — PWA y assets** (`feature/pwa-upgrade`)
-- Integrar `vite-plugin-pwa`, manifest y service worker según §8.
-- Mover assets necesarios a `public/` y revisar `base` para GitHub Pages.
-- Validar modo offline con `npm run preview` y despliegue en `dev`, asegurando que los _placeholders_ de mapas/capas quedarán cacheables cuando se activen (documentar requisitos de assets Leaflet).
+- **Estado:** Completada el 2025-10-18 en `feature/pwa-upgrade`.
+- Integrado `vite-plugin-pwa@1.1.0` con `autoUpdate`, `includeAssets` y `workbox.globPatterns` extendido (`png/jpg/webp`) para anticipar tiles Leaflet.
+- `public/` aloja `manifest.webmanifest`, `assets/grid.svg` y iconos 192/512 maskable generados ad hoc; `index.html` referencia manifest y favicon.
+- `src/main.tsx` registra el SW con `virtual:pwa-register` y se documentó en el README cómo verificar la instalación offline y cómo activar la base `/stereonet-explorer/` mediante `VITE_USE_PAGES_BASE` cuando toque desplegar en Pages.
+- QA ejecutada (`npm run lint`, `npm run type-check`, `npm run build`); `npm run preview` advertido por el sandbox (EPERM al abrir `127.0.0.1:4173`) y Lighthouse pendiente para validación manual en entorno local/GitHub Pages.
 
 #### **Iteración E — Funcionalidades educativas/import/export** (`feature/edu-suite`)
 - Implementar stubs planificados: `EduTour`, `CsvDrop`, export PNG/SVG con leyenda.
@@ -461,7 +463,7 @@ Implementa el RFC-2025-10 (archivo /docs/RFC-2025-10-stereonet-pwa.md):
 - [x] Estructura modular en `core/`, `features/`, `ui/`, `state/` (Iteración A).  
 - [x] i18n ES/EN con switch persistente (Iteración B).  
 - [ ] Persistencia Dexie correcta (Iteración C).  
-- [ ] PWA instalable y offline (Iteración D).  
+- [x] PWA instalable y offline (Iteración D).  
 - [ ] Export PNG/SVG con leyenda y componentes educativos (Iteración E).  
 - [ ] Opcional: Sincronización Supabase cuando se habilite (Iteración F).  
 - [ ] Lint/Type-check/Build OK en todas las iteraciones; Lighthouse PWA ≥ 90 al final de Iteración D.

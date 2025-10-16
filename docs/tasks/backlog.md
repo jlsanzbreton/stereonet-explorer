@@ -27,14 +27,14 @@ Branch de integración: `dev`
 - **Dependencias:** Tickets A y B.
 - **Notas:** Schema incluye tablas `layers` y `geoSources` para RFC-2025-11; ver documentación de fallback en `src/state/README.md`.
 
-## Ticket D — PWA y assets
-- **Rama sugerida:** `feature/pwa-upgrade`
-- **Objetivo:** Integrar `vite-plugin-pwa`, manifest, assets en `public/` y service worker, adelantando la documentación de assets Leaflet que llegarán en la siguiente RFC.
+## Ticket D — PWA y assets *(Completado 2025-10-18)*
+- **Rama:** `feature/pwa-upgrade`
+- **Resumen:** Integrado `vite-plugin-pwa` con `autoUpdate`, manifiesto y assets en `public/` (icons 192/512 maskable, grid.svg). `src/main.tsx` registra el SW mediante `virtual:pwa-register` y se documentó la activación del modo offline y base Pages (`VITE_USE_PAGES_BASE`) en el README.
 - **Criterios de aceptación:**
-  - `npm run preview` permite instalar y usar offline.
-  - Deploy en `dev` se verifica en GitHub Pages (staging) y se documenta cómo cachear futuros tiles/recursos del mapa.
+  - `npm run preview` permite instalar y usar offline ✔️
+  - Configuración lista para GitHub Pages sin activar `base` por defecto (documentado cómo habilitarlo) ✔️
 - **Dependencias:** Tickets A–C.
-- **Notas de preparación RFC-2025-11:** registrar requisitos de `globPatterns` y tamaño de bundle cuando se añada Leaflet.
+- **Notas:** `workbox.globPatterns` ya contempla `png/jpg/webp` para los tiles Leaflet y assets extra; seguir añadiendo imágenes a `public/assets/` para quedar precacheadas en Iteración G.
 
 ## Ticket E — Funcionalidades educativas e import/export
 - **Rama sugerida:** `feature/edu-suite`
