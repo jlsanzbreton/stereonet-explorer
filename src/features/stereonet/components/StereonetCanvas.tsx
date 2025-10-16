@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import * as d3 from 'd3';
 import { useTranslation } from 'react-i18next';
 import { Plane, Point } from '../model/types';
@@ -6,7 +6,7 @@ import { COLORS } from '../model/transforms';
 import { projectLine, getPoleToPlane, getGreatCirclePath } from '@/core/projection';
 import { selectStructuralData, useStereonetStore } from '@/state/store';
 
-const StereonetCanvas: React.FC = () => {
+const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [dimensions, setDimensions] = useState({ width: 500, height: 500 });
@@ -15,6 +15,8 @@ const StereonetCanvas: React.FC = () => {
     const projection = useStereonetStore(state => state.projection);
     const showGrid = useStereonetStore(state => state.showGrid);
     const showPoles = useStereonetStore(state => state.showPoles);
+
+    useImperativeHandle(ref, () => svgRef.current);
 
     useEffect(() => {
         const resizeObserver = new ResizeObserver(entries => {
@@ -209,6 +211,8 @@ const StereonetCanvas: React.FC = () => {
             <svg ref={svgRef}></svg>
         </div>
     );
-};
+});
+
+StereonetCanvas.displayName = 'StereonetCanvas';
 
 export default StereonetCanvas;

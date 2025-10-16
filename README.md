@@ -1,4 +1,4 @@
-> Proyecto en curso — rama `feature/pwa-upgrade`. Consulta los RFC en `docs/` para el contexto completo.
+> Proyecto en curso — rama `feature/edu-suite`. Consulta los RFC en `docs/` para el contexto completo.
 
 # Stereonet Explorer
 
@@ -23,8 +23,24 @@ La app usa `VITE_USE_PAGES_BASE` para decidir si aplica la base `/stereonet-expl
 - `npm run dev` — servidor de desarrollo.
 - `npm run lint` — ESLint sin advertencias.
 - `npm run type-check` — comprobación TypeScript sin emitir código.
+- `npm run test` — ejecuta las pruebas unitarias (Vitest).
 - `npm run build` — bundle de producción con el service worker.
 - `npm run preview` — sirve la build generada; úsalo para probar la PWA.
+
+## Tour guiado
+
+- Lanza el tour desde el botón **Tour guiado/Review tour** en la barra superior. El estado de finalización se guarda en `localStorage` bajo la clave `stereonet-explorer:edu-tour/v1` para que solo se muestre una vez por dispositivo.
+- Para añadir o editar pasos, modifica el arreglo en `src/features/edu/components/EduTour.tsx` y las cadenas localizadas en `src/i18n/locales/*/common.json` (`eduTour.steps.*`).
+
+## Importar datos CSV
+
+- El panel lateral incluye `CsvDrop`, que acepta archivos con columnas `trend,plunge` o `dipDirection,dip` (grados). Los registros válidos se insertan mediante la store Dexie/Zustand.
+- Las validaciones residen en `src/services/validation.ts` (usa Papaparse). Si se necesitan reglas adicionales para Iteración F/G, extiende `validateCsv` y los mensajes de traducción `csvDrop.*`.
+
+## Exportar PNG/SVG del estereonet
+
+- Los botones **Export PNG/SVG** en la barra de herramientas construyen una captura con título, fecha y resumen (planes/líneas). El PNG se genera con `html-to-image`; el SVG se serializa directamente.
+- Limitaciones actuales: estilos Tailwind se rasterizan estáticamente y las fuentes dependen del sistema. Ajusta `buildAnnotatedSvg` en `Toolbar` si necesitas plantillas diferentes o incluir logotipos institucionales.
 
 ## PWA y soporte offline
 

@@ -36,15 +36,16 @@ Branch de integración: `dev`
 - **Dependencias:** Tickets A–C.
 - **Notas:** `workbox.globPatterns` ya contempla `png/jpg/webp` para los tiles Leaflet y assets extra; seguir añadiendo imágenes a `public/assets/` para quedar precacheadas en Iteración G.
 
-## Ticket E — Funcionalidades educativas e import/export
-- **Rama sugerida:** `feature/edu-suite`
-- **Objetivo:** Implementar `EduTour`, `CsvDrop`, exportaciones PNG/SVG y generar stubs tipados (`features/map/MapView.tsx`, `features/layers/LayerManager.tsx`, `core/analysis/index.ts`, `services/validation.ts`) enlazados a la RFC-2025-11.
+## Ticket E — Funcionalidades educativas e import/export *(Completado 2025-10-19)*
+- **Rama:** `feature/edu-suite`
+- **Resumen:** Añadido `EduTour` con persistencia en `localStorage`, importación CSV (`CsvDrop` + `validateCsv` con Papaparse), exportación PNG/SVG con leyenda (helper en `Toolbar`) y stubs tipados para mapa/capas/análisis (`features/map/*`, `features/layers/*`, `core/analysis/index.ts`, `services/validation.ts`).
 - **Criterios de aceptación:**
-  - Tour básico funcional en ES/EN.
-  - Import CSV crea entradas válidas.
-  - Export PNG/SVG incluye leyenda y metadatos.
-  - Stubs y TODOs documentan claramente el traspaso a la RFC-2025-11.
+  - Tour básico funcional en ES/EN ✔️
+  - Import CSV crea entradas válidas y reporta errores traducidos ✔️
+  - Export PNG/SVG incluye título, fecha y leyenda ✔️
+  - Stubs y TODOs documentan el traspaso a la RFC-2025-11 ✔️
 - **Dependencias:** Tickets A–D.
+- **Notas:** Validación CSV lista para extender con GeoJSON en Iteración G; `toolbar.export.*` adelanta leyendas para assets Leaflet y permite inyectar logotipos futuros.
 
 ## Ticket F — Sincronización opcional con Supabase
 - **Rama sugerida:** `feature/cloud-sync`

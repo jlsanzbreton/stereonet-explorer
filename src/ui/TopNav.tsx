@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitch from './LanguageSwitch';
+import EduTour from '@/features/edu/components/EduTour';
 
 const TopNav: React.FC = () => {
   const { t } = useTranslation();
@@ -41,7 +42,10 @@ const TopNav: React.FC = () => {
             </button>
           ))}
         </nav>
-        <LanguageSwitch />
+        <div className="flex items-center gap-4">
+          <EduTour />
+          <LanguageSwitch />
+        </div>
       </div>
     </header>
   );
