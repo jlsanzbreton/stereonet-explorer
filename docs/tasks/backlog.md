@@ -57,7 +57,7 @@ Branch de integración: `dev`
 ## Tickets futuros — RFC-2025-11 (post-fundación)
 
 - **Ticket G — MapView y GeoJSON local (`feature/map-integration`)**: integrar Leaflet/react-leaflet, importar **y exportar** GeoJSON/CSV desde `services/exporters.ts`, y sincronizar selección con el estereonet. Depende de Tickets B–E.
-- **Ticket H — Gestor de capas (`feature/layer-manager`)**: habilitar `LayerManager` en Dexie y UI de capas. Depende de Ticket G.
+- **Ticket H — Gestor de capas (`feature/layer-manager`)**: habilitar `LayerManager` en Dexie y UI de capas. Incluir captura de coordenadas geográficas reales (formulario + Dexie) y actualizar export/import para usar lat/long verdaderos. Depende de Ticket G.
 - **Ticket I — Análisis automático (`feature/analysis-core`)**: completar `core/analysis`, tests y componentes de resumen. Depende de Ticket H.
 - **Ticket J — Colaboración y datasets (`feature/collab-workflows`)**: organizar directorio `datasets/`, guías, licencias y plantillas GitHub. Depende de Tickets G–I.
 - **Ticket K — Insights asistidos opcional (`feature/insights-lite`)**: clustering ligero y recomendaciones textuales; requiere validación docente.

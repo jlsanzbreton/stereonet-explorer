@@ -3,6 +3,7 @@ import { toPng } from 'html-to-image';
 import { useTranslation } from 'react-i18next';
 import { ProjectionType } from '../model/types';
 import { selectStructuralData, useStereonetStore } from '@/state/store';
+import { orientationsToCsv, orientationsToGeoJson } from '@/services/exporters';
 
 interface ToolbarProps {
   stereonetRef: React.RefObject<SVGSVGElement>;
@@ -211,6 +212,40 @@ const Toolbar: React.FC<ToolbarProps> = ({ stereonetRef }) => {
     [stereonetRef, t, triggerDownload, buildAnnotatedSvg, i18n.language]
   );
 
+  const handleDataExport = useCallback(
+    (format: 'csv' | 'geojson') => {
+      if (structuralData.length === 0) {
+        setExportStatus({ type: 'error', message: t('toolbar.export.noData') });
+        return;
+      }
+
+      const now = new Date();
+      const stamp = now.toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+      const filenameBase = `stereonet-data-${stamp}`;
+
+      try {
+        if (format === 'csv') {
+          const csv = orientationsToCsv(structuralData);
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+          triggerDownload(blob, `${filenameBase}.csv`);
+        } else {
+          const geoJson = orientationsToGeoJson(structuralData);
+          const serialized = JSON.stringify(geoJson, null, 2);
+          const blob = new Blob([serialized], { type: 'application/geo+json;charset=utf-8' });
+          triggerDownload(blob, `${filenameBase}.geojson`);
+        }
+        setExportStatus({
+          type: 'success',
+          message: t('toolbar.export.successData', { format: format.toUpperCase() }),
+        });
+      } catch (error) {
+        console.error('Data export failed', error);
+        setExportStatus({ type: 'error', message: t('toolbar.export.errorData') });
+      }
+    },
+    [structuralData, t, triggerDownload]
+  );
+
   const handleLoadSample = () => {
     void loadSample({ force: true });
   };
@@ -283,6 +318,18 @@ const Toolbar: React.FC<ToolbarProps> = ({ stereonetRef }) => {
             {isExporting
               ? t('toolbar.export.processing')
               : t('toolbar.actions.exportSvg')}
+          </button>
+          <button
+            onClick={() => handleDataExport('csv')}
+            className="rounded-md border border-emerald-500 px-3 py-1 text-sm font-medium text-emerald-600 transition hover:bg-emerald-50"
+          >
+            {t('toolbar.actions.exportCsv')}
+          </button>
+          <button
+            onClick={() => handleDataExport('geojson')}
+            className="rounded-md border border-emerald-500 px-3 py-1 text-sm font-medium text-emerald-600 transition hover:bg-emerald-50"
+          >
+            {t('toolbar.actions.exportGeoJson')}
           </button>
           <button
             onClick={handleLoadSample}

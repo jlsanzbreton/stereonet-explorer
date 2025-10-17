@@ -1,4 +1,12 @@
 import Papa from 'papaparse';
+import type {
+  Feature,
+  FeatureCollection,
+  Geometry as GeoJsonGeometry,
+  LineString as GeoJsonLineString,
+  Point as GeoJsonPoint,
+  Position,
+} from 'geojson';
 
 export interface PlaneImport {
   dipDirection: number;
@@ -22,8 +30,17 @@ export interface CsvValidationResult {
   warnings: ValidationMessage[];
 }
 
+export type SupportedGeoJsonGeometry = GeoJsonPoint | GeoJsonLineString;
+
+export type OrientationGeoJsonFeature = Feature<
+  SupportedGeoJsonGeometry,
+  Record<string, unknown>
+> & {
+  geometry: SupportedGeoJsonGeometry;
+};
+
 export interface GeoJsonValidationResult {
-  features: unknown[];
+  features: OrientationGeoJsonFeature[];
   errors: ValidationMessage[];
   warnings: ValidationMessage[];
 }
@@ -243,11 +260,175 @@ export function validateCsv(input: string): CsvValidationResult {
   return { planes, lines, errors, warnings };
 }
 
-export function validateGeoJson(): GeoJsonValidationResult {
-  // TODO(rfc-2025-11): Validate GeoJSON structure for MapView layers.
+const isValidPoint = (geometry: GeoJsonPoint | undefined | null): geometry is GeoJsonPoint => {
+  if (!geometry) {
+    return false;
+  }
+  if (!Array.isArray(geometry.coordinates)) {
+    return false;
+  }
+  if (geometry.coordinates.length < 2) {
+    return false;
+  }
+  const [longitude, latitude] = geometry.coordinates;
+  return Number.isFinite(longitude) && Number.isFinite(latitude);
+};
+
+const isValidLineString = (
+  geometry: GeoJsonLineString | undefined | null
+): geometry is GeoJsonLineString => {
+  if (!geometry) {
+    return false;
+  }
+  if (!Array.isArray(geometry.coordinates) || geometry.coordinates.length === 0) {
+    return false;
+  }
+
+  return geometry.coordinates.every((position: Position) => {
+    if (!Array.isArray(position) || position.length < 2) {
+      return false;
+    }
+    const [longitude, latitude] = position;
+    return Number.isFinite(longitude) && Number.isFinite(latitude);
+  });
+};
+
+export function validateGeoJson(input: string | object): GeoJsonValidationResult {
+  const errors: ValidationMessage[] = [];
+  const warnings: ValidationMessage[] = [];
+
+  let parsed: unknown = input;
+
+  if (typeof input === 'string') {
+    const trimmed = input.trim();
+    if (!trimmed) {
+      return {
+        features: [],
+        errors: [{ key: 'geo.validation.emptyInput' }],
+        warnings: [],
+      };
+    }
+
+    try {
+      parsed = JSON.parse(trimmed) as unknown;
+    } catch (error) {
+      return {
+        features: [],
+        errors: [
+          {
+            key: 'geo.validation.parseError',
+            context: {
+              message: error instanceof Error ? error.message : String(error),
+            },
+          },
+        ],
+        warnings: [],
+      };
+    }
+  }
+
+  if (typeof parsed !== 'object' || parsed === null) {
+    return {
+      features: [],
+      errors: [{ key: 'geo.validation.invalidStructure' }],
+      warnings: [],
+    };
+  }
+
+  const collection = parsed as FeatureCollection;
+  if (collection.type !== 'FeatureCollection') {
+    return {
+      features: [],
+      errors: [{ key: 'geo.validation.notFeatureCollection' }],
+      warnings: [],
+    };
+  }
+
+  if (!Array.isArray(collection.features)) {
+    return {
+      features: [],
+      errors: [{ key: 'geo.validation.invalidFeaturesArray' }],
+      warnings: [],
+    };
+  }
+
+  if (collection.features.length === 0) {
+    warnings.push({ key: 'geo.validation.noFeatures' });
+  }
+
+  const accepted: OrientationGeoJsonFeature[] = [];
+
+  collection.features.forEach((feature, index) => {
+    const featureNumber = index + 1;
+    if (!feature) {
+      warnings.push({
+        key: 'geo.validation.emptyFeature',
+        context: { index: featureNumber },
+      });
+      return;
+    }
+
+    if (feature.type !== 'Feature') {
+      warnings.push({
+        key: 'geo.validation.unsupportedFeature',
+        context: { index: featureNumber, type: (feature as { type?: unknown }).type ?? 'unknown' },
+      });
+      return;
+    }
+
+    const geometry = feature.geometry as GeoJsonGeometry | null | undefined;
+
+    if (!geometry) {
+      warnings.push({
+        key: 'geo.validation.missingGeometry',
+        context: { index: featureNumber },
+      });
+      return;
+    }
+
+    if (geometry.type === 'Point') {
+      const pointGeometry = geometry as GeoJsonPoint;
+      if (!isValidPoint(pointGeometry)) {
+        warnings.push({
+          key: 'geo.validation.invalidPoint',
+          context: { index: featureNumber },
+        });
+        return;
+      }
+      accepted.push({
+        ...feature,
+        geometry: pointGeometry,
+        properties: feature.properties ?? {},
+      });
+      return;
+    }
+
+    if (geometry.type === 'LineString') {
+      const lineGeometry = geometry as GeoJsonLineString;
+      if (!isValidLineString(lineGeometry)) {
+        warnings.push({
+          key: 'geo.validation.invalidLineString',
+          context: { index: featureNumber },
+        });
+        return;
+      }
+      accepted.push({
+        ...feature,
+        geometry: lineGeometry,
+        properties: feature.properties ?? {},
+      });
+      return;
+    }
+
+    warnings.push({
+      key: 'geo.validation.unsupportedGeometry',
+      context: { index: featureNumber, type: geometry.type },
+    });
+  });
+
   return {
-    features: [],
-    errors: [{ key: 'geo.validation.pending' }],
-    warnings: [],
+    features: accepted,
+    errors,
+    warnings,
   };
 }

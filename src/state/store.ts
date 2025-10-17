@@ -55,6 +55,7 @@ interface StereonetState {
     orientations: Orientation[];
     memoryOrientations: Orientation[];
     structuralData: StructuralData[];
+    selectedOrientationId: number | string | null;
     projection: ProjectionType;
     showGrid: boolean;
     showPoles: boolean;
@@ -70,6 +71,8 @@ interface StereonetState {
     setOrientationProjection: (projection: ProjectionType) => void;
     setShowGrid: (value: boolean) => void;
     setShowPoles: (value: boolean) => void;
+    setSelectedOrientationId: (id: number | string | null) => void;
+    clearSelection: () => void;
 }
 
 let memoryIdCounter = 0;
@@ -117,10 +120,18 @@ export const useStereonetStore = create<StereonetState>((set, get) => {
         rehydrateMemoryCounter(list);
         const snapshot = list.map(item => ({ ...item }));
         const structuralData = snapshot.map(orientationToStructural);
+        const previousSelection = get().selectedOrientationId;
+        const nextSelection =
+            previousSelection === null
+                ? null
+                : snapshot.some(item => String(item.id) === String(previousSelection))
+                  ? previousSelection
+                  : null;
         set({
             orientations: snapshot,
             memoryOrientations: snapshot.map(item => ({ ...item })),
             structuralData,
+            selectedOrientationId: nextSelection,
         });
     };
 
@@ -262,6 +273,7 @@ export const useStereonetStore = create<StereonetState>((set, get) => {
         orientations: [],
         memoryOrientations: [],
         structuralData: [],
+        selectedOrientationId: null,
         projection: ProjectionType.Schmidt,
         showGrid: true,
         showPoles: true,
@@ -321,6 +333,12 @@ export const useStereonetStore = create<StereonetState>((set, get) => {
         setShowPoles: (value) => {
             set({ showPoles: value });
         },
+        setSelectedOrientationId: (id) => {
+            set({ selectedOrientationId: id });
+        },
+        clearSelection: () => {
+            set({ selectedOrientationId: null });
+        },
     };
 });
 
@@ -334,3 +352,6 @@ export const selectShowGrid = (state: StereonetState): boolean => state.showGrid
 export const selectShowPoles = (state: StereonetState): boolean => state.showPoles;
 
 export const selectDexieFallback = (state: StereonetState): boolean => state.isDexieFallback;
+
+export const selectSelectedOrientationId = (state: StereonetState): number | string | null =>
+    state.selectedOrientationId;

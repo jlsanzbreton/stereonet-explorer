@@ -2,12 +2,18 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { COLORS } from '../model/transforms';
 import TrashIcon from '@/ui/icons/TrashIcon';
-import { selectStructuralData, useStereonetStore } from '@/state/store';
+import {
+  selectSelectedOrientationId,
+  selectStructuralData,
+  useStereonetStore,
+} from '@/state/store';
 
 const DataTable: React.FC = () => {
     const { t } = useTranslation();
     const data = useStereonetStore(selectStructuralData);
     const removeById = useStereonetStore(state => state.removeById);
+    const selectedOrientationId = useStereonetStore(selectSelectedOrientationId);
+    const setSelectedOrientationId = useStereonetStore(state => state.setSelectedOrientationId);
     const degreeSymbol = t('units.degree');
     return (
         <div className="bg-white p-4 rounded-lg shadow-lg h-full flex flex-col">
@@ -23,8 +29,31 @@ const DataTable: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((item) => (
-                            <tr key={item.id} className="bg-white border-b hover:bg-gray-50">
+                        {data.map((item) => {
+                            const isSelected = selectedOrientationId !== null
+                                && String(item.id) === String(selectedOrientationId);
+                            return (
+                            <tr
+                                key={item.id}
+                                className={`border-b transition ${
+                                    isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white hover:bg-gray-50'
+                                }`}
+                                onClick={() => setSelectedOrientationId(item.id)}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter' || event.key === ' ') {
+                                        event.preventDefault();
+                                        setSelectedOrientationId(item.id);
+                                    }
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                aria-pressed={isSelected}
+                                aria-label={t('table.row.select', {
+                                    type: item.type === 'plane' ? t('table.badge.plane') : t('table.badge.line'),
+                                    azimuth: item.type === 'plane' ? item.dipDirection : item.trend,
+                                    inclination: item.type === 'plane' ? item.dip : item.plunge,
+                                })}
+                            >
                                 <td className="px-4 py-2 font-medium">
                                     <span
                                         className="px-2 py-1 rounded-full text-xs font-semibold"
@@ -46,7 +75,10 @@ const DataTable: React.FC = () => {
                                 </td>
                                 <td className="px-4 py-2 text-right">
                                     <button
-                                        onClick={() => { void removeById(item.id); }}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            void removeById(item.id);
+                                        }}
                                         className="text-gray-400 hover:text-red-500 p-1"
                                         title={t('table.tooltip.remove')}
                                         aria-label={t('table.tooltip.remove')}
@@ -55,7 +87,7 @@ const DataTable: React.FC = () => {
                                     </button>
                                 </td>
                             </tr>
-                        ))}
+                        );})}
                     </tbody>
                 </table>
                 {data.length === 0 && (

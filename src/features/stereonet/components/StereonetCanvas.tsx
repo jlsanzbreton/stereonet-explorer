@@ -15,6 +15,7 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
     const projection = useStereonetStore(state => state.projection);
     const showGrid = useStereonetStore(state => state.showGrid);
     const showPoles = useStereonetStore(state => state.showPoles);
+    const selectedOrientationId = useStereonetStore(state => state.selectedOrientationId);
 
     useImperativeHandle(ref, () => svgRef.current);
 
@@ -117,6 +118,8 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
 
         // Draw data
         data.forEach(item => {
+            const isSelected = selectedOrientationId !== null
+                && String(item.id) === String(selectedOrientationId);
             if (item.type === 'plane') {
                 const path = getGreatCirclePath(item, projection, radius);
                 if (path) {
@@ -125,7 +128,8 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
                         .attr('d', path)
                         .attr('fill', 'none')
                         .attr('stroke', COLORS.PLANE)
-                        .attr('stroke-width', 2)
+                        .attr('stroke-width', isSelected ? 3 : 2)
+                        .attr('opacity', isSelected ? 1 : 0.85)
                         .on('mouseover', () => {
                             tooltip
                                 .style('visibility', 'visible')
@@ -160,6 +164,8 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
                         .attr('width', 6)
                         .attr('height', 6)
                         .attr('fill', COLORS.POLE)
+                        .attr('stroke', isSelected ? COLORS.PLANE : 'none')
+                        .attr('stroke-width', isSelected ? 1.5 : 0)
                         .on('mouseover', () => {
                             tooltip
                                 .style('visibility', 'visible')
@@ -184,8 +190,10 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
                 g.append('circle')
                     .attr('cx', x)
                     .attr('cy', y)
-                    .attr('r', 4)
+                    .attr('r', isSelected ? 6 : 4)
                     .attr('fill', COLORS.LINE)
+                    .attr('stroke', isSelected ? '#0f172a' : 'none')
+                    .attr('stroke-width', isSelected ? 1.5 : 0)
                     .on('mouseover', () => {
                         tooltip
                             .style('visibility', 'visible')
@@ -204,7 +212,7 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
            tooltip.remove();
         };
 
-    }, [data, projection, dimensions, showGrid, showPoles, t, i18n.language]);
+    }, [data, projection, dimensions, showGrid, showPoles, t, i18n.language, selectedOrientationId]);
 
     return (
         <div ref={containerRef} className="w-full h-full">

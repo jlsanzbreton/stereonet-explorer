@@ -6,6 +6,7 @@ import DataTable from '@/features/stereonet/components/DataTable';
 import Toolbar from '@/features/stereonet/components/Toolbar';
 import { useStereonetStore } from '@/state/store';
 import TopNav from '@/ui/TopNav';
+import MapView from '@/features/map/MapView';
 
 const App: React.FC = () => {
     const { t } = useTranslation();
@@ -22,18 +23,25 @@ const App: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col">
             <TopNav />
-            <main className="flex-grow flex flex-col lg:flex-row p-4 gap-4">
-                <div className="w-full lg:w-80 flex-shrink-0">
-                    <InputPanel />
-                </div>
-                <div className="flex-grow flex flex-col bg-white rounded-lg shadow-lg p-4 min-h-[500px] lg:min-h-0">
-                    <Toolbar stereonetRef={stereonetRef} />
-                    <div className="flex-grow w-full h-full flex items-center justify-center">
-                        <StereonetCanvas ref={stereonetRef} />
-                    </div>
-                </div>
-                <div className="w-full lg:w-96 flex-shrink-0">
-                    <DataTable />
+            <main className="flex-grow p-4">
+                <div className="grid gap-4 lg:grid-cols-1 xl:grid-cols-[22rem,minmax(0,1fr),24rem]">
+                    <aside className="flex flex-col gap-4">
+                        <InputPanel />
+                    </aside>
+                    <section className="flex flex-col gap-4">
+                        <div className="flex flex-col rounded-lg bg-white p-4 shadow-lg min-h-[420px]">
+                            <Toolbar stereonetRef={stereonetRef} />
+                            <div className="flex-grow">
+                                <StereonetCanvas ref={stereonetRef} />
+                            </div>
+                        </div>
+                    </section>
+                    <aside className="flex flex-col gap-4">
+                        <div className="rounded-lg bg-white p-4 shadow-lg">
+                            <MapView />
+                        </div>
+                        <DataTable />
+                    </aside>
                 </div>
             </main>
             <footer className="text-center p-4 text-sm text-gray-500">

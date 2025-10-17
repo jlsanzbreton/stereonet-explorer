@@ -2,6 +2,31 @@
   "app": {
     "title": "Stereonet Explorer"
   },
+  "map": {
+    "title": "Vista de mapa",
+    "subtitle": "Vista local con coordenadas de referencia. La georreferenciación real llegará en RFC-2025-11.",
+    "offlineNotice": "Los mosaicos no están disponibles sin conexión salvo que estén en caché. Conéctate para actualizar el mapa base.",
+    "orientations": {
+      "planeTooltip": "Plano {{dipDirection}}°/{{dip}}° → lon {{longitude}}°, lat {{latitude}}°",
+      "lineTooltip": "Línea {{trend}}°/{{plunge}}° → lon {{longitude}}°, lat {{latitude}}°"
+    },
+    "import": {
+      "title": "Importar CSV o GeoJSON",
+      "description": "Añade mediciones desde archivos locales. Los datos permanecen sin conexión y se sincronizan con el estereonet.",
+      "cta": "Elegir archivo",
+      "status": {
+        "processing": "Procesando…",
+        "success": "Se importaron {{planes}} planos y {{lines}} líneas.",
+        "errorsTitle": "Elementos omitidos",
+        "warningsTitle": "Advertencias"
+      },
+      "errors": {
+        "invalidPlaneProps": "La entidad {{feature}} no tiene valores dipDirection/dip.",
+        "invalidLineProps": "La entidad {{feature}} no tiene valores trend/plunge.",
+        "unsupportedFeatureType": "La entidad {{feature}} no está etiquetada como plano o línea y se ignoró."
+      }
+    }
+  },
   "nav": {
     "explore": "Explorar",
     "classroom": "Modo Aula",
@@ -74,8 +99,11 @@
     "export": {
       "processing": "Preparando…",
       "success": "Se exportó la captura {{format}}.",
+      "successData": "Se exportó el dataset {{format}}.",
       "error": "No se pudo generar la exportación. Intenta nuevamente.",
+      "errorData": "Falló la exportación de datos. Intenta nuevamente.",
       "missing": "El estereonet todavía se está renderizando. Vuelve a intentarlo en un momento.",
+      "noData": "Añade al menos una orientación antes de exportar datos.",
       "title": "Stereonet Explorer",
       "date": "Generado: {{date}}",
       "summary": "Planos: {{planes}} • Líneas: {{lines}}",
@@ -85,7 +113,9 @@
       "loadSample": "Cargar muestra",
       "clearAll": "Limpiar todo",
       "exportPng": "Exportar PNG",
-      "exportSvg": "Exportar SVG"
+      "exportSvg": "Exportar SVG",
+      "exportCsv": "Exportar CSV",
+      "exportGeoJson": "Exportar GeoJSON"
     }
   },
   "table": {
@@ -102,6 +132,9 @@
     },
     "tooltip": {
       "remove": "Eliminar elemento"
+    },
+    "row": {
+      "select": "Seleccionar {{type}} ({{azimuth}}° / {{inclination}}°)"
     },
     "empty": {
       "title": "Aún no se han agregado datos.",
@@ -169,7 +202,18 @@
   },
   "geo": {
     "validation": {
-      "pending": "La validación GeoJSON se añadirá con el módulo de mapas (RFC-2025-11)."
+      "emptyInput": "El archivo GeoJSON está vacío.",
+      "parseError": "No se pudo analizar el GeoJSON: {{message}}.",
+      "invalidStructure": "GeoJSON debe ser un objeto JSON.",
+      "notFeatureCollection": "Se esperaba un FeatureCollection de GeoJSON.",
+      "invalidFeaturesArray": "FeatureCollection.features debe ser un arreglo.",
+      "noFeatures": "El archivo GeoJSON no contiene entidades.",
+      "emptyFeature": "La entidad {{index}} está vacía y se ignoró.",
+      "unsupportedFeature": "La entidad {{index}} tiene un tipo no admitido \"{{type}}\".",
+      "missingGeometry": "La entidad {{index}} no tiene geometría.",
+      "invalidPoint": "La entidad {{index}} tiene coordenadas de punto inválidas.",
+      "invalidLineString": "La entidad {{index}} tiene coordenadas de línea inválidas.",
+      "unsupportedGeometry": "La geometría \"{{type}}\" en la entidad {{index}} aún no está soportada."
     }
   }
 }

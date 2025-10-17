@@ -2,6 +2,31 @@
   "app": {
     "title": "Stereonet Explorer"
   },
+  "map": {
+    "title": "Map overview",
+    "subtitle": "Local preview using placeholder coordinates. Real georeferencing lands in RFC-2025-11.",
+    "offlineNotice": "Tiles are unavailable offline unless cached. Reconnect to refresh the base map.",
+    "orientations": {
+      "planeTooltip": "Plane {{dipDirection}}°/{{dip}}° → lon {{longitude}}°, lat {{latitude}}°",
+      "lineTooltip": "Line {{trend}}°/{{plunge}}° → lon {{longitude}}°, lat {{latitude}}°"
+    },
+    "import": {
+      "title": "Import CSV or GeoJSON",
+      "description": "Add measurements from local files. Data stays offline and syncs with the stereonet.",
+      "cta": "Choose file",
+      "status": {
+        "processing": "Processing…",
+        "success": "Imported {{planes}} planes and {{lines}} lines.",
+        "errorsTitle": "Items skipped",
+        "warningsTitle": "Warnings"
+      },
+      "errors": {
+        "invalidPlaneProps": "Feature {{feature}} is missing dipDirection/dip values.",
+        "invalidLineProps": "Feature {{feature}} is missing trend/plunge values.",
+        "unsupportedFeatureType": "Feature {{feature}} was not tagged as a plane or line and was ignored."
+      }
+    }
+  },
   "nav": {
     "explore": "Explore",
     "classroom": "Classroom Mode",
@@ -74,8 +99,11 @@
     "export": {
       "processing": "Preparing…",
       "success": "Exported {{format}} snapshot.",
+      "successData": "Exported {{format}} dataset.",
       "error": "The export could not be generated. Please try again.",
+      "errorData": "Data export failed. Please try again.",
       "missing": "The stereonet is still rendering. Try again in a moment.",
+      "noData": "Add at least one orientation before exporting data.",
       "title": "Stereonet Explorer",
       "date": "Generated: {{date}}",
       "summary": "Planes: {{planes}} • Lines: {{lines}}",
@@ -85,7 +113,9 @@
       "loadSample": "Load Sample",
       "clearAll": "Clear All",
       "exportPng": "Export PNG",
-      "exportSvg": "Export SVG"
+      "exportSvg": "Export SVG",
+      "exportCsv": "Export CSV",
+      "exportGeoJson": "Export GeoJSON"
     }
   },
   "table": {
@@ -102,6 +132,9 @@
     },
     "tooltip": {
       "remove": "Remove item"
+    },
+    "row": {
+      "select": "Select {{type}} ({{azimuth}}° / {{inclination}}°)"
     },
     "empty": {
       "title": "No data added yet.",
@@ -169,7 +202,18 @@
   },
   "geo": {
     "validation": {
-      "pending": "GeoJSON validation will be added with the mapping module (RFC-2025-11)."
+      "emptyInput": "The GeoJSON file is empty.",
+      "parseError": "GeoJSON could not be parsed: {{message}}.",
+      "invalidStructure": "GeoJSON should be a JSON object.",
+      "notFeatureCollection": "Expected a GeoJSON FeatureCollection.",
+      "invalidFeaturesArray": "FeatureCollection.features must be an array.",
+      "noFeatures": "No features were found in the GeoJSON file.",
+      "emptyFeature": "Feature {{index}} is empty and was ignored.",
+      "unsupportedFeature": "Feature {{index}} has unsupported type \"{{type}}\".",
+      "missingGeometry": "Feature {{index}} is missing its geometry.",
+      "invalidPoint": "Feature {{index}} has invalid point coordinates.",
+      "invalidLineString": "Feature {{index}} has invalid line string coordinates.",
+      "unsupportedGeometry": "Geometry \"{{type}}\" on feature {{index}} is not supported yet."
     }
   }
 }

@@ -158,7 +158,8 @@ Agregar a `package.json` cuando inicien las iteraciones correspondientes:
 #### **Iteración H — Gestor de capas** (`feature/layer-manager`)
 - Implementar `LayerManager` en Dexie y en la UI.  
 - Añadir controles de visibilidad, opacidad, color y agrupaciones básicas.  
-- Actualizar exportaciones/CSV para reflejar la jerarquía de capas.
+- Incorporar georreferenciación real: capturar coordenadas lat/long (o convertir UTM) por orientación, almacenarlas en Dexie y centrar el mapa según bounding box.  
+- Actualizar importación/exportación CSV/GeoJSON para usar las coordenadas reales y reflejar la jerarquía de capas.
 
 #### **Iteración I — Análisis automático** (`feature/analysis-core`)
 - Completar `core/analysis` con funciones matemáticas puras y tests.  

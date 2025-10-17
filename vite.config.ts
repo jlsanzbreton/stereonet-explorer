@@ -28,8 +28,11 @@ export default defineConfig(({ mode }) => {
           includeAssets: [
             'assets/grid.svg',
             'icons/icon-192.png',
-            'icons/icon-512.png'
-          ],
+            'icons/icon-512.png',
+            'leaflet/marker-icon.png',
+            'leaflet/marker-icon-2x.png',
+            'leaflet/marker-shadow.png'
+          ], // Explicitly precache Leaflet markers for RFC-2025-10 Iteración G.
           manifest,
           injectManifest: {
             globPatterns: [
