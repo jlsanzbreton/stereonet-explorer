@@ -403,8 +403,9 @@ export function projectLine(trendDeg: number, plungeDeg: number, radius: number,
 - QA ejecutada (`npm run lint`, `npm run type-check`, `npm run test`, `npm run build`) y verificación manual: recorrido guiado, importación de CSV de ejemplo y exportación SVG/PNG desde Toolbar.
 
 #### **Iteración F — Opcional backend Supabase** (`feature/cloud-sync`)
-- Evaluar integración supeditada a disponer de entorno Supabase. Añadir hooks y políticas sólo si Dexie y PWA están estabilizados.
-- Publicar la guía de colaboración mínima (licencia, datasets locales) y enlazar la RFC-2025-11 como siguiente fase antes de habilitar sincronización real.
+- **Estado:** Diferida hasta que haya una necesidad confirmada de backend colaborativo.
+- **Motivo:** La aplicación cubre los usos docentes offline mediante Dexie + exportaciones manuales; añadir un servicio remoto implicaría costes de mantenimiento y acuerdos de datos aún no definidos.
+- **Próximo paso (cuando aplique):** Revisar proveedores (Supabase u otros), definir políticas de sincronización/licencias y, sólo entonces, habilitar la integración en una rama dedicada.
 
 ---
 

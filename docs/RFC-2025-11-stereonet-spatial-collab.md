@@ -88,6 +88,7 @@ La estructura de la RFC-2025-10 se amplía con los _placeholders_ ya creados en 
 ### 4.1 Integración con mapas y GeoJSON (Eje A)
 - **Leaflet + react-leaflet:** mapa base ligero compatible PWA.  
 - **Carga local:** FileReader → parser GeoJSON/CSV → validación → Dexie.  
+- **Exportación offline:** Dexie → CSV/GeoJSON mediante `services/exporters` para compartir datos de campo.  
 - **Sincronización bidireccional:** seleccionar un feature resalta plano/polo asociado en el estereonet y viceversa.  
 - **Modo sandbox:** opción para trabajar sin persistencia (señalado mediante `services/validation`).
 
@@ -151,6 +152,7 @@ Agregar a `package.json` cuando inicien las iteraciones correspondientes:
 #### **Iteración G — MapView y GeoJSON local** (`feature/map-integration`)
 - Integrar Leaflet/react-leaflet y renderizar datos desde Dexie.  
 - Implementar importación GeoJSON/CSV con validación básica.  
+- Habilitar exportación offline GeoJSON/CSV con `services/exporters`.  
 - Sincronizar selección mapa ↔ estereonet.
 
 #### **Iteración H — Gestor de capas** (`feature/layer-manager`)

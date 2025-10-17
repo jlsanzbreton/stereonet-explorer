@@ -47,20 +47,16 @@ Branch de integración: `dev`
 - **Dependencias:** Tickets A–D.
 - **Notas:** Validación CSV lista para extender con GeoJSON en Iteración G; `toolbar.export.*` adelanta leyendas para assets Leaflet y permite inyectar logotipos futuros.
 
-## Ticket F — Sincronización opcional con Supabase
-- **Rama sugerida:** `feature/cloud-sync`
-- **Objetivo:** Añadir integración opcional Supabase cuando haya entorno disponible y publicar la guía mínima de colaboración/licencias antes de activar sincronización.
-- **Criterios de aceptación:**
-  - Hook que sincroniza con Supabase solo si existen variables de entorno.
-  - Documentación de seguridad, colaboración y uso enlazando la RFC-2025-11 como siguiente paso.
-- **Dependencias:** Tickets A–E (especialmente C para modelo de datos, D para PWA estable).
-- **Notas de preparación RFC-2025-11:** dejar claro qué datos seguirán siendo locales y cuáles podrían sincronizarse en fases posteriores.
+## Ticket F — Sincronización opcional con Supabase *(Diferido)*
+- **Estado:** Postergado hasta que exista un requerimiento real de backend compartido.
+- **Motivo:** Se prioriza mantener la app 100 % offline-first con exportaciones manuales. La infraestructura actual (Dexie + export PNG/SVG/CSV) cubre las clases de aula/campo.
+- **Acción futura:** Reabrir este ticket cuando se defina un proveedor (Supabase u otro) y se acuerden políticas de colaboración/licencias. De momento, RFC-2025-11 tomará el relevo sin depender de sincronización remota.
 
 ---
 
 ## Tickets futuros — RFC-2025-11 (post-fundación)
 
-- **Ticket G — MapView y GeoJSON local (`feature/map-integration`)**: integrar Leaflet/react-leaflet, importar GeoJSON/CSV y sincronizar selección con el estereonet. Depende de Tickets B–E.
+- **Ticket G — MapView y GeoJSON local (`feature/map-integration`)**: integrar Leaflet/react-leaflet, importar **y exportar** GeoJSON/CSV desde `services/exporters.ts`, y sincronizar selección con el estereonet. Depende de Tickets B–E.
 - **Ticket H — Gestor de capas (`feature/layer-manager`)**: habilitar `LayerManager` en Dexie y UI de capas. Depende de Ticket G.
 - **Ticket I — Análisis automático (`feature/analysis-core`)**: completar `core/analysis`, tests y componentes de resumen. Depende de Ticket H.
 - **Ticket J — Colaboración y datasets (`feature/collab-workflows`)**: organizar directorio `datasets/`, guías, licencias y plantillas GitHub. Depende de Tickets G–I.
