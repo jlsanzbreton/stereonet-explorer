@@ -52,14 +52,24 @@ Branch de integración: `dev`
 - **Motivo:** Se prioriza mantener la app 100 % offline-first con exportaciones manuales. La infraestructura actual (Dexie + export PNG/SVG/CSV) cubre las clases de aula/campo.
 - **Acción futura:** Reabrir este ticket cuando se defina un proveedor (Supabase u otro) y se acuerden políticas de colaboración/licencias. De momento, RFC-2025-11 tomará el relevo sin depender de sincronización remota.
 
+## Ticket G — MapView y GeoJSON local *(Completado 2025-10-17)*
+- **Rama:** `feature/map-integration`
+- **Resumen:** Integrado Leaflet/react-leaflet con marcadores sincronizados con Dexie y el estereonet, importación GeoJSON/CSV con validación, y exportación offline de datos estructurales (CSV/GeoJSON) desde `services/exporters`.
+- **Criterios de aceptación:**
+  - MapView renderiza orientaciones y destaca la selección compartida con tabla/estereonet ✔️
+  - Importación GeoJSON/CSV persiste datos validados y reporta errores traducidos ✔️
+  - Exportación CSV/GeoJSON disponible desde la toolbar y operativa offline ✔️
+- **Dependencias:** Tickets B–E.
+- **Notas:** Las coordenadas exportadas usan el mapeo provisional (dipDirection/dip ↔ lon/lat); la georreferenciación real se aborda en el Ticket H.
+
 ---
 
 ## Tickets futuros — RFC-2025-11 (post-fundación)
 
-- **Ticket G — MapView y GeoJSON local (`feature/map-integration`)**: integrar Leaflet/react-leaflet, importar **y exportar** GeoJSON/CSV desde `services/exporters.ts`, y sincronizar selección con el estereonet. Depende de Tickets B–E.
 - **Ticket H — Gestor de capas (`feature/layer-manager`)**: habilitar `LayerManager` en Dexie y UI de capas. Incluir captura de coordenadas geográficas reales (formulario + Dexie) y actualizar export/import para usar lat/long verdaderos. Depende de Ticket G.
 - **Ticket I — Análisis automático (`feature/analysis-core`)**: completar `core/analysis`, tests y componentes de resumen. Depende de Ticket H.
 - **Ticket J — Colaboración y datasets (`feature/collab-workflows`)**: organizar directorio `datasets/`, guías, licencias y plantillas GitHub. Depende de Tickets G–I.
 - **Ticket K — Insights asistidos opcional (`feature/insights-lite`)**: clustering ligero y recomendaciones textuales; requiere validación docente.
 
 > Cada ticket debe fusionarse en `dev` tras QA manual. Cuando `dev` esté estable con un conjunto de tickets, abrir PR `dev` → `main` para despliegue.
+> Próximo paso: crear la rama `feature/layer-manager` y arrancar el Ticket H con énfasis en georreferenciación real y gestión de capas.

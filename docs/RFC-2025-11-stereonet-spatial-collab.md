@@ -153,7 +153,8 @@ Agregar a `package.json` cuando inicien las iteraciones correspondientes:
 - Integrar Leaflet/react-leaflet y renderizar datos desde Dexie.  
 - Implementar importación GeoJSON/CSV con validación básica.  
 - Habilitar exportación offline GeoJSON/CSV con `services/exporters`.  
-- Sincronizar selección mapa ↔ estereonet.
+- Sincronizar selección mapa ↔ estereonet.  
+- *Estado:* ✅ Completado el 17/10/2025 (branch `feature/map-integration`). Exporta GeoJSON con mapeo provisional de coordenadas; la georreferenciación real pasa a Iteración H.
 
 #### **Iteración H — Gestor de capas** (`feature/layer-manager`)
 - Implementar `LayerManager` en Dexie y en la UI.  
@@ -199,7 +200,7 @@ Agregar a `package.json` cuando inicien las iteraciones correspondientes:
 
 ## 10. Checklist de aceptación (fase Mapas/Capas)
 
-- [ ] MapView Leaflet integrado y offline-ready (Iteración G).  
+- [x] MapView Leaflet integrado y offline-ready (Iteración G).  
 - [ ] Importación/exportación GeoJSON y CSV validada (Iteración G/H).  
 - [ ] LayerManager funcional con UI accesible (Iteración H).  
 - [ ] Análisis automático y exportaciones científicas (Iteración I).  
