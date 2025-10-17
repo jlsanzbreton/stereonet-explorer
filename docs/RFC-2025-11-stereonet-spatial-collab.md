@@ -161,6 +161,14 @@ Agregar a `package.json` cuando inicien las iteraciones correspondientes:
 - Añadir controles de visibilidad, opacidad, color y agrupaciones básicas.  
 - Incorporar georreferenciación real: capturar coordenadas lat/long (o convertir UTM) por orientación, almacenarlas en Dexie y centrar el mapa según bounding box.  
 - Actualizar importación/exportación CSV/GeoJSON para usar las coordenadas reales y reflejar la jerarquía de capas.
+- *Estado:* ✅ Completado el 18/10/2025 (branch `feature/layer-manager`). La auto-centrado inicial necesita el ajuste especificado en la iteración H.1.
+
+#### **Iteración H.1 — Auto-centrado Leaflet** (`feature/map-autofit`)
+- Filtrar sólo orientaciones con coordenadas reales y overlays georreferenciados para calcular targets de encuadre.  
+- Sustituir el `flyTo` genérico por `fitBounds` con padding, asegurando centrado en latitud y longitud.  
+- Forzar zoom mínimo equivalente a un radio ≤ 500 km y uso de `flyTo` específico cuando sólo hay un punto.  
+- Actualizar botón “recentrar” y lógica de estado para que ignore placeholders y restablezca el auto-fit tras la animación.  
+- QA en Safari/Chrome móvil y escritorio verificando centrado y zoom.
 
 #### **Iteración I — Análisis automático** (`feature/analysis-core`)
 - Completar `core/analysis` con funciones matemáticas puras y tests.  
@@ -202,7 +210,7 @@ Agregar a `package.json` cuando inicien las iteraciones correspondientes:
 
 - [x] MapView Leaflet integrado y offline-ready (Iteración G).  
 - [ ] Importación/exportación GeoJSON y CSV validada (Iteración G/H).  
-- [ ] LayerManager funcional con UI accesible (Iteración H).  
+- [x] LayerManager funcional con UI accesible (Iteración H).  
 - [ ] Análisis automático y exportaciones científicas (Iteración I).  
 - [ ] Guías colaborativas y licenciamiento publicados (Iteración J).  
 - [ ] Insights asistidos opcionales evaluados (Iteración K).  
