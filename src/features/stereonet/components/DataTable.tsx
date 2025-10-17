@@ -25,6 +25,9 @@ const DataTable: React.FC = () => {
                             <th scope="col" className="px-4 py-2">{t('table.headers.type')}</th>
                             <th scope="col" className="px-4 py-2">{t('table.headers.azimuth')}</th>
                             <th scope="col" className="px-4 py-2">{t('table.headers.inclination')}</th>
+                            <th scope="col" className="px-4 py-2">{t('table.headers.latitude')}</th>
+                            <th scope="col" className="px-4 py-2">{t('table.headers.longitude')}</th>
+                            <th scope="col" className="px-4 py-2">{t('table.headers.layer')}</th>
                             <th scope="col" className="px-4 py-2 text-right">{t('table.headers.actions')}</th>
                         </tr>
                     </thead>
@@ -32,11 +35,16 @@ const DataTable: React.FC = () => {
                         {data.map((item) => {
                             const isSelected = selectedOrientationId !== null
                                 && String(item.id) === String(selectedOrientationId);
+                            const isLayerVisible = item.layerVisible !== false;
                             return (
                             <tr
                                 key={item.id}
                                 className={`border-b transition ${
-                                    isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white hover:bg-gray-50'
+                                    isSelected
+                                        ? 'bg-blue-50 border-blue-200'
+                                        : isLayerVisible
+                                            ? 'bg-white hover:bg-gray-50'
+                                            : 'bg-slate-100 text-slate-500'
                                 }`}
                                 onClick={() => setSelectedOrientationId(item.id)}
                                 onKeyDown={(event) => {
@@ -72,6 +80,31 @@ const DataTable: React.FC = () => {
                                 <td className="px-4 py-2">
                                     {item.type === 'plane' ? item.dip : item.plunge}
                                     {degreeSymbol}
+                                </td>
+                                <td className="px-4 py-2">
+                                    {typeof item.latitude === 'number'
+                                        ? item.latitude.toFixed(4)
+                                        : t('table.value.missing')}
+                                </td>
+                                <td className="px-4 py-2">
+                                    {typeof item.longitude === 'number'
+                                        ? item.longitude.toFixed(4)
+                                        : t('table.value.missing')}
+                                </td>
+                                <td className="px-4 py-2">
+                                    <span className="inline-flex items-center gap-2">
+                                        <span
+                                            className="h-3 w-3 rounded-full border border-slate-200"
+                                            style={{
+                                                backgroundColor: item.layerColor ?? '#94a3b8',
+                                                opacity: item.layerOpacity ?? 1,
+                                            }}
+                                            aria-hidden
+                                        />
+                                        <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                            {item.layerName ?? t('table.value.unassigned')}
+                                        </span>
+                                    </span>
                                 </td>
                                 <td className="px-4 py-2 text-right">
                                     <button

@@ -5,7 +5,16 @@ import { validateGeoJson } from '../validation';
 
 describe('orientations exporters', () => {
   const sampleData: StructuralData[] = [
-    { id: 1, type: 'plane', dipDirection: 120, dip: 45 },
+    {
+      id: 1,
+      type: 'plane',
+      dipDirection: 120,
+      dip: 45,
+      latitude: 40.5,
+      longitude: -73.9,
+      layerId: 7,
+      layerName: 'Field Notes',
+    },
     { id: 'line-a', type: 'line', trend: 210, plunge: 12 },
   ];
 
@@ -21,9 +30,9 @@ describe('orientations exporters', () => {
   it('converts orientations to CSV with headers', () => {
     const csv = orientationsToCsv(sampleData);
     const lines = csv.trim().split('\n');
-    expect(lines[0]).toBe('id,type,dipDirection,dip,trend,plunge');
-    expect(lines[1]).toBe('1,plane,120,45,,');
-    expect(lines[2]).toBe('line-a,line,,,210,12');
+    expect(lines[0]).toBe('id,type,dipDirection,dip,trend,plunge,latitude,longitude,layerId,layerName');
+    expect(lines[1]).toBe('1,plane,120,45,,,40.5,-73.9,7,Field Notes');
+    expect(lines[2]).toBe('line-a,line,,,210,12,,,,');
   });
 
   it('builds a GeoJSON FeatureCollection with placeholder coordinates', () => {
@@ -36,13 +45,19 @@ describe('orientations exporters', () => {
     expect(planeFeature.properties?.type).toBe('plane');
     expect(planeFeature.properties?.createdAt).toBe('2025-01-02T03:04:05.000Z');
     expect(planeFeature.properties?.dipDirection).toBe(120);
+    expect(planeFeature.properties?.latitude).toBe(40.5);
+    expect(planeFeature.properties?.longitude).toBe(-73.9);
+    expect(planeFeature.properties?.layerId).toBe(7);
+    expect(planeFeature.properties?.layerName).toBe('Field Notes');
+    expect(planeFeature.properties?.placeholderCoordinates).toBe(false);
     expect(planeFeature.geometry).toEqual({
       type: 'Point',
-      coordinates: [120, 45],
+      coordinates: [-73.9, 40.5],
     });
 
     const lineFeature = geoJson.features[1];
     expect(lineFeature.properties?.type).toBe('line');
+    expect(lineFeature.properties?.placeholderCoordinates).toBe(true);
     expect(lineFeature.geometry).toEqual({
       type: 'Point',
       coordinates: [-150, 12],

@@ -1,19 +1,38 @@
 import type { FeatureCollection, Point as GeoJsonPoint } from 'geojson';
 import type { StructuralData } from '@/features/stereonet/model/types';
-import { orientationToLonLat } from '@/features/map/orientationMapping';
+import {
+  orientationHasCoordinates,
+  orientationToLonLat,
+} from '@/features/map/orientationMapping';
 
 export interface OrientationGeoJsonProperties {
   id: string;
   type: 'plane' | 'line';
   source: 'stereonet';
   createdAt: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  layerId?: string | number | null;
+  layerName?: string | null;
+  placeholderCoordinates?: boolean;
   dipDirection?: number;
   dip?: number;
   trend?: number;
   plunge?: number;
 }
 
-const CSV_HEADERS = ['id', 'type', 'dipDirection', 'dip', 'trend', 'plunge'] as const;
+const CSV_HEADERS = [
+  'id',
+  'type',
+  'dipDirection',
+  'dip',
+  'trend',
+  'plunge',
+  'latitude',
+  'longitude',
+  'layerId',
+  'layerName',
+] as const;
 
 const sanitize = (value: unknown): string => {
   if (value === null || value === undefined) {
@@ -39,6 +58,10 @@ export const orientationsToCsv = (data: StructuralData[]): string => {
       item.type === 'plane' ? sanitize(item.dip) : '',
       item.type === 'line' ? sanitize(item.trend) : '',
       item.type === 'line' ? sanitize(item.plunge) : '',
+      sanitize(item.latitude ?? null),
+      sanitize(item.longitude ?? null),
+      sanitize(item.layerId ?? null),
+      sanitize(item.layerName ?? null),
     ];
     return cells.join(',');
   });
@@ -54,12 +77,24 @@ export const orientationsToGeoJson = (
   return {
     type: 'FeatureCollection',
     features: data.map((item) => {
-      const [longitude, latitude] = orientationToLonLat(item);
+      const hasRealCoordinates = orientationHasCoordinates(item);
+      const [fallbackLongitude, fallbackLatitude] = orientationToLonLat(item);
+      const longitude = hasRealCoordinates
+        ? (item.longitude as number)
+        : fallbackLongitude;
+      const latitude = hasRealCoordinates
+        ? (item.latitude as number)
+        : fallbackLatitude;
       const baseProperties: OrientationGeoJsonProperties = {
         id: sanitize(item.id),
         type: item.type,
         source: 'stereonet',
         createdAt: exportedAt,
+        latitude: hasRealCoordinates ? (item.latitude as number) : null,
+        longitude: hasRealCoordinates ? (item.longitude as number) : null,
+        layerId: item.layerId ?? null,
+        layerName: item.layerName ?? null,
+        placeholderCoordinates: !hasRealCoordinates,
       };
 
       const properties =

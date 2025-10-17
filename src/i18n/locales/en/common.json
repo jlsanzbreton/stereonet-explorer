@@ -4,11 +4,26 @@
   },
   "map": {
     "title": "Map overview",
-    "subtitle": "Local preview using placeholder coordinates. Real georeferencing lands in RFC-2025-11.",
+    "subtitle": "Render local orientations using stored coordinates. Entries without latitude/longitude fall back to trend/dip placeholders.",
     "offlineNotice": "Tiles are unavailable offline unless cached. Reconnect to refresh the base map.",
     "orientations": {
-      "planeTooltip": "Plane {{dipDirection}}°/{{dip}}° → lon {{longitude}}°, lat {{latitude}}°",
-      "lineTooltip": "Line {{trend}}°/{{plunge}}° → lon {{longitude}}°, lat {{latitude}}°"
+      "planeTooltip": "Plane {{dipDirection}}°/{{dip}}° → lon {{longitude}}°, lat {{latitude}}° ({{status}} · {{layer}})",
+      "lineTooltip": "Line {{trend}}°/{{plunge}}° → lon {{longitude}}°, lat {{latitude}}° ({{status}} · {{layer}})"
+    },
+    "status": {
+      "georeferenced": "captured",
+      "placeholder": "placeholder"
+    },
+    "layers": {
+      "legend": "Layer legend",
+      "unknown": "Unassigned"
+    },
+    "controls": {
+      "recenterAll": "Center all",
+      "recenterSelected": "Center selection"
+    },
+    "warnings": {
+      "missingCoordinates": "Placeholder coordinates remaining: {{count}}"
     },
     "import": {
       "title": "Import CSV or GeoJSON",
@@ -23,7 +38,9 @@
       "errors": {
         "invalidPlaneProps": "Feature {{feature}} is missing dipDirection/dip values.",
         "invalidLineProps": "Feature {{feature}} is missing trend/plunge values.",
-        "unsupportedFeatureType": "Feature {{feature}} was not tagged as a plane or line and was ignored."
+        "unsupportedFeatureType": "Feature {{feature}} has unsupported type \"{{type}}\" and was ignored.",
+        "missingCoordinates": "Feature {{feature}} does not include point coordinates.",
+        "pointGeometryRequired": "Feature {{feature}} must use Point geometry to import orientations."
       }
     }
   },
@@ -49,13 +66,21 @@
     "line": {
       "title": "Add Line",
       "submit": "Add Line"
+    },
+    "coordinates": {
+      "placeholder": "Optional"
+    },
+    "layer": {
+      "label": "Layer",
+      "placeholder": "Auto (stereonet default)",
+      "helper": "Choose the layer that should receive new orientations."
     }
   },
   "csvDrop": {
     "title": "Import CSV",
     "description": "Drag and drop or browse for a CSV file containing structural measurements.",
     "cta": "Drop CSV or click to browse",
-    "hint": "Accepted columns: trend/plunge or dipDirection/dip (degrees).",
+    "hint": "Accepted columns: trend/plunge or dipDirection/dip (degrees) plus optional latitude/longitude/layer.",
     "status": {
       "processing": "Reading file…",
       "success": "Imported {{planes}} planes and {{lines}} lines.",
@@ -70,18 +95,23 @@
       "invalidLineRow": "Row {{row}} has invalid line values (trend/plunge).",
       "missingLineColumns": "Row {{row}} is missing trend/plunge columns.",
       "invalidNumber": "Row {{row}} contains a value outside the allowed ranges (0–360/0–90).",
+      "invalidLatitude": "Row {{row}} has an invalid latitude (expected -90 to 90).",
+      "invalidLongitude": "Row {{row}} has an invalid longitude (expected -180 to 180).",
       "noValidRows": "No valid orientations were detected in this file."
     },
     "warnings": {
       "emptyRow": "Row {{row}} is empty and was ignored.",
-      "noRecognizedColumns": "Row {{row}} does not include recognized column headers."
+      "noRecognizedColumns": "Row {{row}} does not include recognized column headers.",
+      "partialCoordinates": "Row {{row}} has only one coordinate. Added orientation with placeholder location."
     }
   },
   "labels": {
     "dipDirection": "Dip Direction",
     "dip": "Dip",
     "trend": "Trend",
-    "plunge": "Plunge"
+    "plunge": "Plunge",
+    "latitude": "Latitude",
+    "longitude": "Longitude"
   },
   "units": {
     "degree": "°"
@@ -124,6 +154,9 @@
       "type": "Type",
       "azimuth": "Azimuth",
       "inclination": "Inclination",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "layer": "Layer",
       "actions": "Actions"
     },
     "badge": {
@@ -136,10 +169,43 @@
     "row": {
       "select": "Select {{type}} ({{azimuth}}° / {{inclination}}°)"
     },
+    "value": {
+      "missing": "—",
+      "unassigned": "Unassigned"
+    },
     "empty": {
       "title": "No data added yet.",
       "description": "Use the panel on the left to add planes and lines."
     }
+  },
+  "layers": {
+    "title": "Layer Manager",
+    "subtitle": "Toggle visibility, colors, and opacity for stereonet and map datasets.",
+    "kind": {
+      "stereonet": "Stereonet",
+      "map": "Map",
+      "analysis": "Analysis"
+    },
+    "new": {
+      "name": "Layer name",
+      "kind": "Layer type",
+      "placeholder": "e.g. Field data",
+      "cta": "Create layer"
+    },
+    "fields": {
+      "color": "Color",
+      "opacity": "Opacity",
+      "visible": "Visible"
+    },
+    "actions": {
+      "rename": "Rename",
+      "delete": "Remove"
+    },
+    "editName": {
+      "label": "Edit layer name",
+      "button": "Rename {{name}}"
+    },
+    "count": "{{count}} items"
   },
   "canvas": {
     "cardinal": {

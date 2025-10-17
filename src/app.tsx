@@ -7,6 +7,7 @@ import Toolbar from '@/features/stereonet/components/Toolbar';
 import { useStereonetStore } from '@/state/store';
 import TopNav from '@/ui/TopNav';
 import MapView from '@/features/map/MapView';
+import LayerManager from '@/features/layers/LayerManager';
 
 const App: React.FC = () => {
     const { t } = useTranslation();
@@ -24,23 +25,28 @@ const App: React.FC = () => {
         <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col">
             <TopNav />
             <main className="flex-grow p-4">
-                <div className="grid gap-4 lg:grid-cols-1 xl:grid-cols-[22rem,minmax(0,1fr),24rem]">
+                <div className="mx-auto grid w-full max-w-screen-2xl gap-4 lg:grid-cols-[minmax(20rem,24rem),minmax(0,1fr)] 2xl:grid-cols-[minmax(20rem,24rem),minmax(0,1fr),minmax(18rem,24rem)]">
                     <aside className="flex flex-col gap-4">
                         <InputPanel />
                     </aside>
                     <section className="flex flex-col gap-4">
-                        <div className="flex flex-col rounded-lg bg-white p-4 shadow-lg min-h-[420px]">
+                        <div className="flex min-h-[420px] flex-col rounded-lg bg-white p-4 shadow-lg">
                             <Toolbar stereonetRef={stereonetRef} />
                             <div className="flex-grow">
                                 <StereonetCanvas ref={stereonetRef} />
                             </div>
                         </div>
                     </section>
-                    <aside className="flex flex-col gap-4">
-                        <div className="rounded-lg bg-white p-4 shadow-lg">
-                            <MapView />
+                    <aside className="flex flex-col gap-4 2xl:col-auto xl:col-span-2 xl:flex-row xl:items-start xl:gap-4 2xl:flex-col">
+                        <div className="w-full xl:max-w-sm 2xl:max-w-none">
+                            <LayerManager />
                         </div>
-                        <DataTable />
+                        <div className="flex w-full flex-col gap-4 xl:flex-1 2xl:w-full">
+                            <div className="rounded-lg bg-white p-4 shadow-lg">
+                                <MapView />
+                            </div>
+                            <DataTable />
+                        </div>
                     </aside>
                 </div>
             </main>

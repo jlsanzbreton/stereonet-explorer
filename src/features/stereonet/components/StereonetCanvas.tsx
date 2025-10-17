@@ -120,6 +120,11 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
         data.forEach(item => {
             const isSelected = selectedOrientationId !== null
                 && String(item.id) === String(selectedOrientationId);
+            if (item.layerVisible === false) {
+                return;
+            }
+            const layerColor = item.layerColor ?? (item.type === 'plane' ? COLORS.PLANE : COLORS.LINE);
+            const layerOpacity = item.layerOpacity ?? 1;
             if (item.type === 'plane') {
                 const path = getGreatCirclePath(item, projection, radius);
                 if (path) {
@@ -127,9 +132,9 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
                     g.append('path')
                         .attr('d', path)
                         .attr('fill', 'none')
-                        .attr('stroke', COLORS.PLANE)
+                        .attr('stroke', layerColor)
                         .attr('stroke-width', isSelected ? 3 : 2)
-                        .attr('opacity', isSelected ? 1 : 0.85)
+                        .attr('opacity', (isSelected ? 1 : 0.85) * layerOpacity)
                         .on('mouseover', () => {
                             tooltip
                                 .style('visibility', 'visible')
@@ -151,7 +156,7 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
                         .attr('dy', strike > 90 && strike < 270 ? -3 : 10) // Adjust position slightly
                         .attr('text-anchor', 'middle')
                         .attr('font-size', '10px')
-                        .attr('fill', COLORS.PLANE)
+                        .attr('fill', layerColor)
                         .style('pointer-events', 'none')
                         .text(t('canvas.labels.plane', { dipDirection: item.dipDirection, dip: item.dip }));
                 }
@@ -164,7 +169,7 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
                         .attr('width', 6)
                         .attr('height', 6)
                         .attr('fill', COLORS.POLE)
-                        .attr('stroke', isSelected ? COLORS.PLANE : 'none')
+                        .attr('stroke', isSelected ? layerColor : 'none')
                         .attr('stroke-width', isSelected ? 1.5 : 0)
                         .on('mouseover', () => {
                             tooltip
@@ -191,9 +196,10 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
                     .attr('cx', x)
                     .attr('cy', y)
                     .attr('r', isSelected ? 6 : 4)
-                    .attr('fill', COLORS.LINE)
+                    .attr('fill', layerColor)
                     .attr('stroke', isSelected ? '#0f172a' : 'none')
                     .attr('stroke-width', isSelected ? 1.5 : 0)
+                    .attr('opacity', layerOpacity)
                     .on('mouseover', () => {
                         tooltip
                             .style('visibility', 'visible')

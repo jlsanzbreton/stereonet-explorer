@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStereonetStore } from '@/state/store';
+import useLayerResolver from '@/features/layers/hooks/useLayerResolver';
 import {
   validateCsv,
   ValidationMessage,
@@ -27,6 +28,7 @@ const CsvDrop: React.FC = () => {
   const { t } = useTranslation();
   const addPlane = useStereonetStore((state) => state.addPlane);
   const addLine = useStereonetStore((state) => state.addLine);
+  const resolveLayerId = useLayerResolver();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -36,19 +38,33 @@ const CsvDrop: React.FC = () => {
   const persistPlanes = useCallback(
     async (planes: PlaneImport[]) => {
       for (const plane of planes) {
-        await addPlane(plane);
+        const layerId = await resolveLayerId(plane);
+        await addPlane({
+          dipDirection: plane.dipDirection,
+          dip: plane.dip,
+          latitude: plane.latitude,
+          longitude: plane.longitude,
+          layerId: layerId ?? undefined,
+        });
       }
     },
-    [addPlane]
+    [addPlane, resolveLayerId]
   );
 
   const persistLines = useCallback(
     async (lines: LineImport[]) => {
       for (const line of lines) {
-        await addLine(line);
+        const layerId = await resolveLayerId(line);
+        await addLine({
+          trend: line.trend,
+          plunge: line.plunge,
+          latitude: line.latitude,
+          longitude: line.longitude,
+          layerId: layerId ?? undefined,
+        });
       }
     },
-    [addLine]
+    [addLine, resolveLayerId]
   );
 
   const handleResult = useCallback(

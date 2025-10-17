@@ -9,8 +9,8 @@ describe('validateCsv', () => {
     expect(result.errors).toHaveLength(0);
     expect(result.planes).toHaveLength(1);
     expect(result.lines).toHaveLength(1);
-    expect(result.planes[0]).toEqual({ dipDirection: 110, dip: 30 });
-    expect(result.lines[0]).toEqual({ trend: 200, plunge: 15 });
+    expect(result.planes[0]).toMatchObject({ dipDirection: 110, dip: 30 });
+    expect(result.lines[0]).toMatchObject({ trend: 200, plunge: 15 });
   });
 
   it('respects type hints when provided', () => {

@@ -7,6 +7,15 @@ export enum ProjectionType {
 interface BaseData {
     id: number | string;
     type: 'plane' | 'line';
+    latitude?: number | null;
+    longitude?: number | null;
+    layerId?: number | null;
+    layerName?: string;
+    layerColor?: string;
+    layerOpacity?: number;
+    layerVisible?: boolean;
+    notes?: string | null;
+    createdAt?: number;
 }
 
 export interface Plane extends BaseData {

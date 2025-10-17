@@ -4,11 +4,26 @@
   },
   "map": {
     "title": "Vista de mapa",
-    "subtitle": "Vista local con coordenadas de referencia. La georreferenciación real llegará en RFC-2025-11.",
+    "subtitle": "Representa orientaciones con coordenadas almacenadas. Cuando faltan, se usan posiciones aproximadas basadas en rumbo/buzamiento.",
     "offlineNotice": "Los mosaicos no están disponibles sin conexión salvo que estén en caché. Conéctate para actualizar el mapa base.",
     "orientations": {
-      "planeTooltip": "Plano {{dipDirection}}°/{{dip}}° → lon {{longitude}}°, lat {{latitude}}°",
-      "lineTooltip": "Línea {{trend}}°/{{plunge}}° → lon {{longitude}}°, lat {{latitude}}°"
+      "planeTooltip": "Plano {{dipDirection}}°/{{dip}}° → lon {{longitude}}°, lat {{latitude}}° ({{status}} · {{layer}})",
+      "lineTooltip": "Línea {{trend}}°/{{plunge}}° → lon {{longitude}}°, lat {{latitude}}° ({{status}} · {{layer}})"
+    },
+    "status": {
+      "georeferenced": "georreferenciado",
+      "placeholder": "aproximado"
+    },
+    "layers": {
+      "legend": "Leyenda de capas",
+      "unknown": "Sin asignar"
+    },
+    "controls": {
+      "recenterAll": "Centrar todo",
+      "recenterSelected": "Centrar selección"
+    },
+    "warnings": {
+      "missingCoordinates": "Coordenadas aproximadas restantes: {{count}}"
     },
     "import": {
       "title": "Importar CSV o GeoJSON",
@@ -23,7 +38,9 @@
       "errors": {
         "invalidPlaneProps": "La entidad {{feature}} no tiene valores dipDirection/dip.",
         "invalidLineProps": "La entidad {{feature}} no tiene valores trend/plunge.",
-        "unsupportedFeatureType": "La entidad {{feature}} no está etiquetada como plano o línea y se ignoró."
+        "unsupportedFeatureType": "La entidad {{feature}} tiene un tipo \"{{type}}\" no admitido y se ignoró.",
+        "missingCoordinates": "La entidad {{feature}} no incluye coordenadas de punto.",
+        "pointGeometryRequired": "La entidad {{feature}} debe ser de tipo Point para importar orientaciones."
       }
     }
   },
@@ -49,13 +66,21 @@
     "line": {
       "title": "Añadir línea",
       "submit": "Añadir línea"
+    },
+    "coordinates": {
+      "placeholder": "Opcional"
+    },
+    "layer": {
+      "label": "Capa",
+      "placeholder": "Automático (capa estereonet)",
+      "helper": "Elige la capa donde se guardarán las nuevas orientaciones."
     }
   },
   "csvDrop": {
     "title": "Importar CSV",
     "description": "Arrastra y suelta o selecciona un archivo CSV con mediciones estructurales.",
     "cta": "Suelta el CSV o haz clic para buscar",
-    "hint": "Columnas aceptadas: trend/plunge o dipDirection/dip (grados).",
+    "hint": "Columnas aceptadas: trend/plunge o dipDirection/dip (grados) más latitud/longitud/capa opcionales.",
     "status": {
       "processing": "Leyendo archivo…",
       "success": "Se importaron {{planes}} planos y {{lines}} líneas.",
@@ -70,18 +95,23 @@
       "invalidLineRow": "La fila {{row}} tiene valores de línea inválidos (rumbo/inclinación).",
       "missingLineColumns": "La fila {{row}} no contiene las columnas trend/plunge.",
       "invalidNumber": "La fila {{row}} tiene valores fuera de los rangos permitidos (0–360/0–90).",
+      "invalidLatitude": "La fila {{row}} tiene una latitud inválida (esperado -90 a 90).",
+      "invalidLongitude": "La fila {{row}} tiene una longitud inválida (esperado -180 a 180).",
       "noValidRows": "No se detectaron orientaciones válidas en este archivo."
     },
     "warnings": {
       "emptyRow": "La fila {{row}} está vacía y se ignoró.",
-      "noRecognizedColumns": "La fila {{row}} no incluye cabeceras reconocidas."
+      "noRecognizedColumns": "La fila {{row}} no incluye cabeceras reconocidas.",
+      "partialCoordinates": "La fila {{row}} tiene solo una coordenada. Se añadió la orientación con una posición aproximada."
     }
   },
   "labels": {
     "dipDirection": "Dirección de buzamiento",
     "dip": "Buzamiento",
     "trend": "Rumbo",
-    "plunge": "Inclinación"
+    "plunge": "Inclinación",
+    "latitude": "Latitud",
+    "longitude": "Longitud"
   },
   "units": {
     "degree": "°"
@@ -124,6 +154,9 @@
       "type": "Tipo",
       "azimuth": "Azimut",
       "inclination": "Inclinación",
+      "latitude": "Latitud",
+      "longitude": "Longitud",
+      "layer": "Capa",
       "actions": "Acciones"
     },
     "badge": {
@@ -136,10 +169,43 @@
     "row": {
       "select": "Seleccionar {{type}} ({{azimuth}}° / {{inclination}}°)"
     },
+    "value": {
+      "missing": "—",
+      "unassigned": "Sin asignar"
+    },
     "empty": {
       "title": "Aún no se han agregado datos.",
       "description": "Usa el panel de la izquierda para añadir planos y líneas."
     }
+  },
+  "layers": {
+    "title": "Gestor de capas",
+    "subtitle": "Activa o ajusta las capas que se comparten entre el estereonet y el mapa.",
+    "kind": {
+      "stereonet": "Estereonet",
+      "map": "Mapa",
+      "analysis": "Análisis"
+    },
+    "new": {
+      "name": "Nombre de la capa",
+      "kind": "Tipo de capa",
+      "placeholder": "p. ej. Datos de campo",
+      "cta": "Crear capa"
+    },
+    "fields": {
+      "color": "Color",
+      "opacity": "Opacidad",
+      "visible": "Visible"
+    },
+    "actions": {
+      "rename": "Renombrar",
+      "delete": "Eliminar"
+    },
+    "editName": {
+      "label": "Editar nombre de la capa",
+      "button": "Renombrar {{name}}"
+    },
+    "count": "{{count}} elementos"
   },
   "canvas": {
     "cardinal": {

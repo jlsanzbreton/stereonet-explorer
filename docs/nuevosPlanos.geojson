@@ -1,0 +1,90 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-1.05, 41.55] },
+      "properties": {
+        "id": "18",
+        "type": "line",
+        "source": "stereonet",
+        "createdAt": "2025-10-17T21:27:16.201Z",
+        "latitude": 41.55,
+        "longitude": -1.05,
+        "layerId": 1,
+        "layerName": "Stereonet data",
+        "placeholderCoordinates": false,
+        "trend": 120,
+        "plunge": 25
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-1.05, 41.55] },
+      "properties": {
+        "id": "19",
+        "type": "plane",
+        "source": "stereonet",
+        "createdAt": "2025-10-17T21:27:16.201Z",
+        "latitude": 41.55,
+        "longitude": -1.05,
+        "layerId": 1,
+        "layerName": "Stereonet data",
+        "placeholderCoordinates": false,
+        "dipDirection": 180,
+        "dip": 30
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-1.05, 41.55] },
+      "properties": {
+        "id": "20",
+        "type": "plane",
+        "source": "stereonet",
+        "createdAt": "2025-10-17T21:27:16.201Z",
+        "latitude": 41.55,
+        "longitude": -1.05,
+        "layerId": 1,
+        "layerName": "Stereonet data",
+        "placeholderCoordinates": false,
+        "dipDirection": 45,
+        "dip": 30
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-1.05, 41.55] },
+      "properties": {
+        "id": "21",
+        "type": "plane",
+        "source": "stereonet",
+        "createdAt": "2025-10-17T21:35:00.000Z",
+        "latitude": 41.55,
+        "longitude": -1.05,
+        "layerId": 1,
+        "layerName": "Stereonet data",
+        "placeholderCoordinates": false,
+        "dipDirection": 120,
+        "dip": 25
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-1.05, 41.55] },
+      "properties": {
+        "id": "22",
+        "type": "plane",
+        "source": "stereonet",
+        "createdAt": "2025-10-17T21:35:00.000Z",
+        "latitude": 41.55,
+        "longitude": -1.05,
+        "layerId": 1,
+        "layerName": "Stereonet data",
+        "placeholderCoordinates": false,
+        "dipDirection": 210,
+        "dip": 90
+      }
+    }
+  ]
+}

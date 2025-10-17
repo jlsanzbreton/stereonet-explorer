@@ -7,13 +7,25 @@ import type {
   Point as GeoJsonPoint,
   Position,
 } from 'geojson';
+import type { LayerKind } from '@/features/layers/model/layerTypes';
 
-export interface PlaneImport {
+export interface LayerHint {
+  layerId?: string | number | null;
+  layerName?: string | null;
+  layerKind?: LayerKind;
+}
+
+interface OrientationImportBase extends LayerHint {
+  latitude: number | null;
+  longitude: number | null;
+}
+
+export interface PlaneImport extends OrientationImportBase {
   dipDirection: number;
   dip: number;
 }
 
-export interface LineImport {
+export interface LineImport extends OrientationImportBase {
   trend: number;
   plunge: number;
 }
@@ -52,9 +64,11 @@ const NUMBER_RANGES = {
   dip: { min: 0, max: 90 },
   trend: { min: 0, max: 360 },
   plunge: { min: 0, max: 90 },
+  latitude: { min: -90, max: 90 },
+  longitude: { min: -180, max: 180 },
 } as const;
 
-const NORMALIZED_HEADERS: Record<string, keyof typeof NUMBER_RANGES | 'type'> = {
+const NORMALIZED_HEADERS: Record<string, keyof typeof NUMBER_RANGES | 'type' | 'layer'> = {
   dipdirection: 'dipDirection',
   dipdir: 'dipDirection',
   dip: 'dip',
@@ -62,8 +76,15 @@ const NORMALIZED_HEADERS: Record<string, keyof typeof NUMBER_RANGES | 'type'> = 
   plunge: 'plunge',
   lineplunge: 'plunge',
   linedip: 'dip',
+  latitude: 'latitude',
+  lat: 'latitude',
+  longitude: 'longitude',
+  lon: 'longitude',
   typed: 'type',
   type: 'type',
+  layer: 'layer',
+  layerid: 'layer',
+  layername: 'layer',
 };
 
 function normalizeHeader(header: string): string {
@@ -162,6 +183,47 @@ export function validateCsv(input: string): CsvValidationResult {
     const dip = toNumber(normalizedEntries.get('dip'));
     const trend = toNumber(normalizedEntries.get('trend'));
     const plunge = toNumber(normalizedEntries.get('plunge'));
+    const latitudeRaw = toNumber(normalizedEntries.get('latitude'));
+    const longitudeRaw = toNumber(normalizedEntries.get('longitude'));
+    let latitude = latitudeRaw;
+    let longitude = longitudeRaw;
+
+    if (latitudeRaw !== null && !isWithinRange(latitudeRaw, NUMBER_RANGES.latitude)) {
+      errors.push({
+        key: 'csvDrop.errors.invalidLatitude',
+        context: { row: rowNumber },
+      });
+      latitude = null;
+    }
+
+    if (longitudeRaw !== null && !isWithinRange(longitudeRaw, NUMBER_RANGES.longitude)) {
+      errors.push({
+        key: 'csvDrop.errors.invalidLongitude',
+        context: { row: rowNumber },
+      });
+      longitude = null;
+    }
+
+    if ((latitude === null) !== (longitude === null)) {
+      warnings.push({
+        key: 'csvDrop.warnings.partialCoordinates',
+        context: { row: rowNumber },
+      });
+    }
+
+    const rawLayer = normalizedEntries.get('layer');
+    let layerId: string | number | null = null;
+    let layerName: string | null = null;
+    if (typeof rawLayer === 'number' && Number.isFinite(rawLayer)) {
+      layerId = rawLayer;
+      layerName = rawLayer.toString();
+    } else if (typeof rawLayer === 'string') {
+      const trimmed = rawLayer.trim();
+      if (trimmed !== '') {
+        layerName = trimmed;
+        layerId = trimmed;
+      }
+    }
 
     const hasPlaneColumns =
       normalizedEntries.has('dipDirection') || normalizedEntries.has('dip');
@@ -181,16 +243,25 @@ export function validateCsv(input: string): CsvValidationResult {
         .filter((value) => typeof value === 'number')
         .length > 0;
 
+    const baseMetadata = {
+      latitude,
+      longitude,
+      layerId,
+      layerName,
+    };
+
     const registerPlane = () =>
       planes.push({
         dipDirection: dipDirection as number,
         dip: dip as number,
+        ...baseMetadata,
       });
 
     const registerLine = () =>
       lines.push({
         trend: trend as number,
         plunge: plunge as number,
+        ...baseMetadata,
       });
 
     if (typeHint === 'plane') {
@@ -271,7 +342,15 @@ const isValidPoint = (geometry: GeoJsonPoint | undefined | null): geometry is Ge
     return false;
   }
   const [longitude, latitude] = geometry.coordinates;
-  return Number.isFinite(longitude) && Number.isFinite(latitude);
+  if (!Number.isFinite(longitude) || !Number.isFinite(latitude)) {
+    return false;
+  }
+  return (
+    longitude >= NUMBER_RANGES.longitude.min &&
+    longitude <= NUMBER_RANGES.longitude.max &&
+    latitude >= NUMBER_RANGES.latitude.min &&
+    latitude <= NUMBER_RANGES.latitude.max
+  );
 };
 
 const isValidLineString = (
@@ -289,7 +368,15 @@ const isValidLineString = (
       return false;
     }
     const [longitude, latitude] = position;
-    return Number.isFinite(longitude) && Number.isFinite(latitude);
+    if (!Number.isFinite(longitude) || !Number.isFinite(latitude)) {
+      return false;
+    }
+    return (
+      longitude >= NUMBER_RANGES.longitude.min &&
+      longitude <= NUMBER_RANGES.longitude.max &&
+      latitude >= NUMBER_RANGES.latitude.min &&
+      latitude <= NUMBER_RANGES.latitude.max
+    );
   });
 };
 

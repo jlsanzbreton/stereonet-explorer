@@ -13,6 +13,19 @@ export const clampLatitude = (value: number): number => {
 };
 
 export const orientationToLonLat = (orientation: StructuralData): LonLatTuple => {
+  const hasRealCoordinates =
+    typeof orientation.longitude === 'number' &&
+    Number.isFinite(orientation.longitude) &&
+    typeof orientation.latitude === 'number' &&
+    Number.isFinite(orientation.latitude);
+
+  if (hasRealCoordinates) {
+    return [
+      wrapLongitude(orientation.longitude),
+      clampLatitude(orientation.latitude),
+    ];
+  }
+
   if (orientation.type === 'plane') {
     // TODO(rfc-2025-11): Swap placeholder mapping once metadata includes true geographic coordinates.
     return [wrapLongitude(orientation.dipDirection), clampLatitude(orientation.dip)];
@@ -25,3 +38,9 @@ export const orientationToLeafletLatLng = (orientation: StructuralData): LatLngT
   const [longitude, latitude] = orientationToLonLat(orientation);
   return [latitude, longitude];
 };
+
+export const orientationHasCoordinates = (orientation: StructuralData): boolean =>
+  typeof orientation.longitude === 'number' &&
+  Number.isFinite(orientation.longitude) &&
+  typeof orientation.latitude === 'number' &&
+  Number.isFinite(orientation.latitude);

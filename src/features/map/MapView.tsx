@@ -13,24 +13,28 @@ import L from 'leaflet';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-import { COLORS } from '@/features/stereonet/model/transforms';
 import {
   orientationToLeafletLatLng,
   orientationToLonLat,
+  orientationHasCoordinates,
 } from '@/features/map/orientationMapping';
 import {
+  selectLayers,
   selectSelectedOrientationId,
   selectStructuralData,
   useStereonetStore,
 } from '@/state/store';
 import {
   LineImport,
+  LayerHint,
   OrientationGeoJsonFeature,
   PlaneImport,
   validateCsv,
   validateGeoJson,
   ValidationMessage,
 } from '@/services/validation';
+import useLayerResolver from '@/features/layers/hooks/useLayerResolver';
+import type { LayerKind } from '@/features/layers/model/layerTypes';
 
 const DEFAULT_CENTER: LatLngExpression = [0, 0];
 const DEFAULT_ZOOM = 2;
@@ -85,6 +89,42 @@ const EXTRACT_RANGES = {
   plunge: { min: 0, max: 90 },
 } as const;
 
+const LAYER_KINDS: LayerKind[] = ['stereonet', 'map', 'analysis'];
+
+const parseLayerKind = (value: unknown): LayerKind | undefined => {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+  const normalized = value.trim().toLowerCase();
+  return LAYER_KINDS.find((kind) => kind === normalized);
+};
+
+const parseLayerHint = (properties: Record<string, unknown>): LayerHint => {
+  const candidates = [properties.layerId, properties.layerName, properties.layer];
+  let layerId: string | number | null = null;
+  let layerName: string | null = null;
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'number' && Number.isFinite(candidate)) {
+      layerId = candidate;
+      layerName = layerName ?? candidate.toString();
+      break;
+    }
+    if (typeof candidate === 'string') {
+      const trimmed = candidate.trim();
+      if (trimmed !== '') {
+        layerId = trimmed;
+        layerName = trimmed;
+        break;
+      }
+    }
+  }
+
+  const layerKind = parseLayerKind(properties.layerKind);
+
+  return { layerId, layerName, layerKind };
+};
+
 const extractOrientationsFromGeoJson = (
   features: OrientationGeoJsonFeature[]
 ): {
@@ -101,34 +141,67 @@ const extractOrientationsFromGeoJson = (
     const properties = feature.properties ?? {};
     const rawType = typeof properties.type === 'string' ? properties.type.trim().toLowerCase() : undefined;
 
-    if (rawType === 'plane') {
-      const dipDirection = toNumber(
-        (properties.dipDirection ??
-          (properties as Record<string, unknown>).azimuth) as number | string
-      );
-      const dip = toNumber(properties.dip as number | string);
-      if (
-        isWithin(dipDirection, EXTRACT_RANGES.dipDirection.min, EXTRACT_RANGES.dipDirection.max) &&
-        isWithin(dip, EXTRACT_RANGES.dip.min, EXTRACT_RANGES.dip.max)
-      ) {
-        planes.push({ dipDirection, dip });
-      } else {
-        warnings.push({
-          key: 'map.import.errors.invalidPlaneProps',
-          context: { feature: rowIndex },
-        });
-      }
+    if (!rawType) {
       return;
     }
 
-    if (rawType === 'line') {
+    if (rawType === 'plane' || rawType === 'line') {
+      if (feature.geometry.type !== 'Point') {
+        warnings.push({
+          key: 'map.import.errors.pointGeometryRequired',
+          context: { feature: rowIndex },
+        });
+        return;
+      }
+
+      const [longitudeRaw, latitudeRaw] = feature.geometry.coordinates;
+      if (
+        !Number.isFinite(longitudeRaw) ||
+        !Number.isFinite(latitudeRaw)
+      ) {
+        warnings.push({
+          key: 'map.import.errors.missingCoordinates',
+          context: { feature: rowIndex },
+        });
+        return;
+      }
+
+      const metadata = parseLayerHint(properties as Record<string, unknown>);
+      const baseOrientation = {
+        latitude: Math.max(-90, Math.min(90, latitudeRaw)),
+        longitude: ((longitudeRaw + 180) % 360 + 360) % 360 - 180,
+        layerId: metadata.layerId ?? null,
+        layerName: metadata.layerName ?? null,
+        layerKind: metadata.layerKind,
+      };
+
+      if (rawType === 'plane') {
+        const dipDirection = toNumber(
+          (properties.dipDirection ??
+            (properties as Record<string, unknown>).azimuth) as number | string
+        );
+        const dip = toNumber(properties.dip as number | string);
+        if (
+          isWithin(dipDirection, EXTRACT_RANGES.dipDirection.min, EXTRACT_RANGES.dipDirection.max) &&
+          isWithin(dip, EXTRACT_RANGES.dip.min, EXTRACT_RANGES.dip.max)
+        ) {
+          planes.push({ dipDirection, dip, ...baseOrientation });
+        } else {
+          warnings.push({
+            key: 'map.import.errors.invalidPlaneProps',
+            context: { feature: rowIndex },
+          });
+        }
+        return;
+      }
+
       const trend = toNumber(properties.trend as number | string);
       const plunge = toNumber(properties.plunge as number | string);
       if (
         isWithin(trend, EXTRACT_RANGES.trend.min, EXTRACT_RANGES.trend.max) &&
         isWithin(plunge, EXTRACT_RANGES.plunge.min, EXTRACT_RANGES.plunge.max)
       ) {
-        lines.push({ trend, plunge });
+        lines.push({ trend, plunge, ...baseOrientation });
       } else {
         warnings.push({
           key: 'map.import.errors.invalidLineProps',
@@ -140,7 +213,7 @@ const extractOrientationsFromGeoJson = (
 
     warnings.push({
       key: 'map.import.errors.unsupportedFeatureType',
-      context: { feature: rowIndex },
+      context: { feature: rowIndex, type: rawType },
     });
   });
 
@@ -167,8 +240,10 @@ const MapView: React.FC = () => {
 
   const { t } = useTranslation();
   const structuralData = useStereonetStore(selectStructuralData);
+  const layers = useStereonetStore(selectLayers);
   const addPlane = useStereonetStore((state) => state.addPlane);
   const addLine = useStereonetStore((state) => state.addLine);
+  const resolveLayerId = useLayerResolver('map');
   const selectedOrientationId = useStereonetStore(selectSelectedOrientationId);
   const setSelectedOrientationId = useStereonetStore((state) => state.setSelectedOrientationId);
 
@@ -178,9 +253,11 @@ const MapView: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [feedback, setFeedback] = useState<ImportFeedback>(initialFeedback);
   const [localFeatures, setLocalFeatures] = useState<OrientationGeoJsonFeature[]>([]);
+  const [hasUserAdjustedView, setHasUserAdjustedView] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
   const lastSelectedRef = useRef<number | string | null>(null);
+  const isAutoFittingRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -196,10 +273,23 @@ const MapView: React.FC = () => {
     };
   }, []);
 
+  const visibleLayerIds = useMemo(
+    () => new Set(layers.filter((layer) => layer.visible).map((layer) => layer.id)),
+    [layers]
+  );
+
+  const visibleStructuralData = useMemo(
+    () => structuralData.filter((item) => item.layerId === null || visibleLayerIds.has(item.layerId)),
+    [structuralData, visibleLayerIds]
+  );
+
   const orientationMarkers = useMemo(() => {
-    return structuralData.map((item) => {
+    return visibleStructuralData.map((item) => {
       const [latitude, longitude] = orientationToLeafletLatLng(item);
       const lonLat = orientationToLonLat(item);
+      const layerColor = item.layerColor ?? '#1f2937';
+      const layerOpacity = item.layerOpacity ?? 1;
+      const hasCoords = orientationHasCoordinates(item);
       const position: LatLngExpression = [latitude, longitude];
       const label =
         item.type === 'plane'
@@ -208,12 +298,16 @@ const MapView: React.FC = () => {
               dip: item.dip,
               longitude: lonLat[0],
               latitude: lonLat[1],
+              layer: item.layerName ?? t('map.layers.unknown'),
+              status: hasCoords ? t('map.status.georeferenced') : t('map.status.placeholder'),
             })
           : t('map.orientations.lineTooltip', {
               trend: item.trend,
               plunge: item.plunge,
               longitude: lonLat[0],
               latitude: lonLat[1],
+              layer: item.layerName ?? t('map.layers.unknown'),
+              status: hasCoords ? t('map.status.georeferenced') : t('map.status.placeholder'),
             });
 
       return {
@@ -222,9 +316,118 @@ const MapView: React.FC = () => {
         position,
         label,
         data: item,
+        color: layerColor,
+        opacity: layerOpacity,
+        hasCoordinates: hasCoords,
       };
     });
-  }, [structuralData, t]);
+  }, [visibleStructuralData, t]);
+
+  const missingCoordinateCount = useMemo(
+    () => orientationMarkers.filter((marker) => !marker.hasCoordinates).length,
+    [orientationMarkers]
+  );
+
+  const applyAutoFit = useCallback(
+    (markers: typeof orientationMarkers, options?: { animate?: boolean }) => {
+      const map = mapRef.current;
+      if (!map || markers.length === 0) {
+        return;
+      }
+      isAutoFittingRef.current = true;
+      const animate = options?.animate ?? true;
+      if (markers.length === 1) {
+        const [latitude, longitude] = markers[0]?.position as [number, number];
+        const targetZoom = Math.max(map.getZoom(), 7);
+        map.flyTo([latitude, longitude], targetZoom, { animate });
+        map.once('moveend', () => {
+          isAutoFittingRef.current = false;
+          setHasUserAdjustedView(false);
+        });
+        if (!animate) {
+          isAutoFittingRef.current = false;
+          setHasUserAdjustedView(false);
+        } else {
+          window.setTimeout(() => {
+            if (isAutoFittingRef.current) {
+              isAutoFittingRef.current = false;
+              setHasUserAdjustedView(false);
+            }
+          }, 500);
+        }
+        return;
+      }
+
+      const latLngs = markers.map((marker) =>
+        L.latLng(marker.position as [number, number])
+      );
+      const bounds = L.latLngBounds(latLngs);
+      if (!bounds.isValid()) {
+        return;
+      }
+
+      const padding: L.PointTuple = [48, 48];
+      const desiredZoom = map.getBoundsZoom(bounds, false, padding);
+      const coverageKm =
+        bounds.getNorthEast().distanceTo(bounds.getSouthWest()) / 1000;
+      const targetZoom = coverageKm <= 1200 && desiredZoom < 5 ? 5 : desiredZoom;
+
+      map.flyTo(bounds.getCenter(), targetZoom, { animate });
+      map.once('moveend', () => {
+        isAutoFittingRef.current = false;
+        setHasUserAdjustedView(false);
+      });
+      if (!animate) {
+        isAutoFittingRef.current = false;
+        setHasUserAdjustedView(false);
+      } else {
+        window.setTimeout(() => {
+          if (isAutoFittingRef.current) {
+            isAutoFittingRef.current = false;
+            setHasUserAdjustedView(false);
+          }
+        }, 500);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+    const markAdjusted = () => {
+      if (!isAutoFittingRef.current) {
+        setHasUserAdjustedView(true);
+      }
+    };
+    map.on('dragstart', markAdjusted);
+    map.on('zoomstart', markAdjusted);
+    return () => {
+      map.off('dragstart', markAdjusted);
+      map.off('zoomstart', markAdjusted);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (orientationMarkers.length === 0) {
+      return;
+    }
+    if (!hasUserAdjustedView) {
+      applyAutoFit(orientationMarkers, { animate: true });
+    }
+  }, [orientationMarkers, hasUserAdjustedView, applyAutoFit]);
+
+  const selectedMarkers = useMemo(
+    () =>
+      selectedOrientationId === null
+        ? []
+        : orientationMarkers.filter(
+            (entry) => String(entry.id) === String(selectedOrientationId)
+          ),
+    [orientationMarkers, selectedOrientationId]
+  );
 
   useEffect(() => {
     if (!mapRef.current) {
@@ -237,16 +440,27 @@ const MapView: React.FC = () => {
     if (lastSelectedRef.current === selectedOrientationId) {
       return;
     }
-    const marker = orientationMarkers.find(
-      (entry) => String(entry.id) === String(selectedOrientationId)
-    );
-    if (marker) {
-      mapRef.current.setView(marker.position, Math.max(mapRef.current.getZoom(), 4), {
-        animate: true,
-      });
-      lastSelectedRef.current = selectedOrientationId;
+    if (selectedMarkers.length === 0) {
+      return;
     }
-  }, [orientationMarkers, selectedOrientationId]);
+    applyAutoFit(selectedMarkers, { animate: true });
+    lastSelectedRef.current = selectedOrientationId;
+  }, [applyAutoFit, selectedMarkers, selectedOrientationId]);
+
+  const recenter = useCallback(
+    (scope: 'selected' | 'all') => {
+      const markers =
+        scope === 'selected' && selectedMarkers.length > 0
+          ? selectedMarkers
+          : orientationMarkers;
+      if (markers.length === 0) {
+        return;
+      }
+      setHasUserAdjustedView(false);
+      applyAutoFit(markers, { animate: true });
+    },
+    [applyAutoFit, orientationMarkers, selectedMarkers]
+  );
 
   const overlayLines = useMemo(() => {
     return localFeatures
@@ -283,12 +497,26 @@ const MapView: React.FC = () => {
 
       if (result.planes.length > 0) {
         for (const plane of result.planes) {
-          await addPlane(plane);
+          const layerId = await resolveLayerId(plane);
+          await addPlane({
+            dipDirection: plane.dipDirection,
+            dip: plane.dip,
+            latitude: plane.latitude,
+            longitude: plane.longitude,
+            layerId: layerId ?? undefined,
+          });
         }
       }
       if (result.lines.length > 0) {
         for (const line of result.lines) {
-          await addLine(line);
+          const layerId = await resolveLayerId(line);
+          await addLine({
+            trend: line.trend,
+            plunge: line.plunge,
+            latitude: line.latitude,
+            longitude: line.longitude,
+            layerId: layerId ?? undefined,
+          });
         }
       }
 
@@ -301,7 +529,7 @@ const MapView: React.FC = () => {
         warnings: result.warnings,
       });
     },
-    [addLine, addPlane]
+    [addLine, addPlane, resolveLayerId]
   );
 
   const handleGeoJsonImport = useCallback(
@@ -322,12 +550,26 @@ const MapView: React.FC = () => {
 
       if (planes.length > 0) {
         for (const plane of planes) {
-          await addPlane(plane);
+          const layerId = await resolveLayerId(plane);
+          await addPlane({
+            dipDirection: plane.dipDirection,
+            dip: plane.dip,
+            latitude: plane.latitude,
+            longitude: plane.longitude,
+            layerId: layerId ?? undefined,
+          });
         }
       }
       if (lines.length > 0) {
         for (const line of lines) {
-          await addLine(line);
+          const layerId = await resolveLayerId(line);
+          await addLine({
+            trend: line.trend,
+            plunge: line.plunge,
+            latitude: line.latitude,
+            longitude: line.longitude,
+            layerId: layerId ?? undefined,
+          });
         }
       }
 
@@ -337,7 +579,7 @@ const MapView: React.FC = () => {
         warnings: [...parsed.warnings, ...warnings],
       });
     },
-    [addLine, addPlane]
+    [addLine, addPlane, resolveLayerId]
   );
 
   const handleFile = useCallback(
@@ -400,17 +642,16 @@ const MapView: React.FC = () => {
           {orientationMarkers.map((marker) => {
             const isSelected =
               selectedIdString !== null && String(marker.id) === selectedIdString;
-            const color = marker.type === 'plane' ? COLORS.PLANE : COLORS.LINE;
             return (
               <CircleMarker
                 key={`orientation-${marker.id}`}
                 center={marker.position}
                 pathOptions={{
-                  color,
-                  fillColor: color,
-                  fillOpacity: 0.7,
+                  color: marker.color,
+                  fillColor: marker.color,
+                  fillOpacity: 0.6 * marker.opacity,
                   weight: isSelected ? 4 : 2,
-                  opacity: isSelected ? 0.9 : 0.75,
+                  opacity: isSelected ? 0.95 : 0.75 * marker.opacity,
                 }}
                 radius={marker.type === 'plane' ? 6 : 5}
                 eventHandlers={{
@@ -450,6 +691,40 @@ const MapView: React.FC = () => {
             {t('map.offlineNotice')}
           </div>
         ) : null}
+
+        {missingCoordinateCount > 0 ? (
+          <div className="pointer-events-none absolute bottom-3 left-1/2 w-[90%] -translate-x-1/2 rounded-md bg-amber-500/90 px-4 py-2 text-center text-xs font-medium text-white shadow-lg sm:w-auto">
+            {t('map.warnings.missingCoordinates', { count: missingCoordinateCount })}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
+        <span className="font-semibold text-slate-700">{t('map.layers.legend')}</span>
+        {layers.map((layer) => (
+          <span
+            key={layer.id}
+            className={`flex items-center gap-2 rounded-full border px-3 py-1 ${
+              layer.visible ? 'border-slate-200 bg-white' : 'border-dashed border-slate-300 bg-slate-50 text-slate-400'
+            }`}
+          >
+            <span
+              className="h-3 w-3 rounded-full"
+              style={{ backgroundColor: layer.color, opacity: layer.opacity }}
+              aria-hidden
+            />
+            <span>{layer.name}</span>
+          </span>
+        ))}
+        <button
+          type="button"
+          onClick={() => recenter(selectedMarkers.length > 0 ? 'selected' : 'all')}
+          className="ml-auto rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 transition hover:border-blue-400 hover:text-blue-600"
+        >
+          {selectedMarkers.length > 0
+            ? t('map.controls.recenterSelected')
+            : t('map.controls.recenterAll')}
+        </button>
       </div>
 
       <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
