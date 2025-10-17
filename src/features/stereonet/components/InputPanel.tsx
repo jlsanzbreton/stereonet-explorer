@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import PlusIcon from '@/ui/icons/PlusIcon';
+import CsvDrop from '@/features/import/CsvDrop';
 import { useStereonetStore } from '@/state/store';
 
 const InputPanel: React.FC = () => {
@@ -86,6 +87,9 @@ const InputPanel: React.FC = () => {
                     {t('input.line.submit')}
                 </button>
             </form>
+            <div className="border-t pt-4">
+                <CsvDrop />
+            </div>
         </div>
     );
 };

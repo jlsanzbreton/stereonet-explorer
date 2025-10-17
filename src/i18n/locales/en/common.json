@@ -26,6 +26,32 @@
       "submit": "Add Line"
     }
   },
+  "csvDrop": {
+    "title": "Import CSV",
+    "description": "Drag and drop or browse for a CSV file containing structural measurements.",
+    "cta": "Drop CSV or click to browse",
+    "hint": "Accepted columns: trend/plunge or dipDirection/dip (degrees).",
+    "status": {
+      "processing": "Reading file…",
+      "success": "Imported {{planes}} planes and {{lines}} lines.",
+      "errorsTitle": "Rows skipped",
+      "warningsTitle": "Warnings"
+    },
+    "errors": {
+      "emptyFile": "The CSV is empty.",
+      "parseError": "Row {{row}} could not be parsed: {{message}}.",
+      "invalidPlaneRow": "Row {{row}} has invalid plane values (dip direction/dip).",
+      "missingPlaneColumns": "Row {{row}} is missing dipDirection/dip columns.",
+      "invalidLineRow": "Row {{row}} has invalid line values (trend/plunge).",
+      "missingLineColumns": "Row {{row}} is missing trend/plunge columns.",
+      "invalidNumber": "Row {{row}} contains a value outside the allowed ranges (0–360/0–90).",
+      "noValidRows": "No valid orientations were detected in this file."
+    },
+    "warnings": {
+      "emptyRow": "Row {{row}} is empty and was ignored.",
+      "noRecognizedColumns": "Row {{row}} does not include recognized column headers."
+    }
+  },
   "labels": {
     "dipDirection": "Dip Direction",
     "dip": "Dip",
@@ -45,9 +71,21 @@
       "showGrid": "Show Grid",
       "showPoles": "Show Poles"
     },
+    "export": {
+      "processing": "Preparing…",
+      "success": "Exported {{format}} snapshot.",
+      "error": "The export could not be generated. Please try again.",
+      "missing": "The stereonet is still rendering. Try again in a moment.",
+      "title": "Stereonet Explorer",
+      "date": "Generated: {{date}}",
+      "summary": "Planes: {{planes}} • Lines: {{lines}}",
+      "note": "Rendered offline via Stereonet Explorer (RFC-2025-10)."
+    },
     "actions": {
       "loadSample": "Load Sample",
-      "clearAll": "Clear All"
+      "clearAll": "Clear All",
+      "exportPng": "Export PNG",
+      "exportSvg": "Export SVG"
     }
   },
   "table": {
@@ -93,6 +131,45 @@
     "summary": {
       "title": "Analysis Summary",
       "placeholder": "Interpretation tools will be available soon."
+    }
+  },
+  "eduTour": {
+    "actions": {
+      "start": "Guided Tour",
+      "review": "Review Tour",
+      "next": "Next",
+      "finish": "Finish",
+      "back": "Back",
+      "skip": "Skip",
+      "reset": "Restart"
+    },
+    "labels": {
+      "completed": "Completed",
+      "new": "New",
+      "progress": "Step {{current}} of {{total}}"
+    },
+    "steps": {
+      "welcome": {
+        "title": "Welcome to Stereonet Explorer",
+        "body": "Use the navigation bar to switch between classroom and analysis views. This tour walks through the core workflow that works offline in the field."
+      },
+      "input": {
+        "title": "Add planes and lines",
+        "body": "Start on the left panel to add structural measurements. Enter dip direction and dip for planes or trend and plunge for lines—the data persists automatically."
+      },
+      "canvas": {
+        "title": "Interpret the stereonet",
+        "body": "The toolbar lets you toggle projections, grid overlays and sample data. Orientations appear on the central stereonet using D3 so you can inspect poles and great circles."
+      },
+      "data": {
+        "title": "Review and prepare datasets",
+        "body": "The table on the right lists every orientation stored locally (Dexie). Use it to clean up entries, export results, or prepare for upcoming map and layer tools."
+      }
+    }
+  },
+  "geo": {
+    "validation": {
+      "pending": "GeoJSON validation will be added with the mapping module (RFC-2025-11)."
     }
   }
 }

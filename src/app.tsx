@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import InputPanel from '@/features/stereonet/components/InputPanel';
 import StereonetCanvas from '@/features/stereonet/components/StereonetCanvas';
@@ -11,6 +11,7 @@ const App: React.FC = () => {
     const { t } = useTranslation();
     const loadInitialData = useStereonetStore(state => state.loadInitialData);
     const isInitialized = useStereonetStore(state => state.isInitialized);
+    const stereonetRef = useRef<SVGSVGElement | null>(null);
 
     useEffect(() => {
         if (!isInitialized) {
@@ -26,9 +27,9 @@ const App: React.FC = () => {
                     <InputPanel />
                 </div>
                 <div className="flex-grow flex flex-col bg-white rounded-lg shadow-lg p-4 min-h-[500px] lg:min-h-0">
-                    <Toolbar />
+                    <Toolbar stereonetRef={stereonetRef} />
                     <div className="flex-grow w-full h-full flex items-center justify-center">
-                        <StereonetCanvas />
+                        <StereonetCanvas ref={stereonetRef} />
                     </div>
                 </div>
                 <div className="w-full lg:w-96 flex-shrink-0">

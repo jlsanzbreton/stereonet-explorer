@@ -26,6 +26,32 @@
       "submit": "Añadir línea"
     }
   },
+  "csvDrop": {
+    "title": "Importar CSV",
+    "description": "Arrastra y suelta o selecciona un archivo CSV con mediciones estructurales.",
+    "cta": "Suelta el CSV o haz clic para buscar",
+    "hint": "Columnas aceptadas: trend/plunge o dipDirection/dip (grados).",
+    "status": {
+      "processing": "Leyendo archivo…",
+      "success": "Se importaron {{planes}} planos y {{lines}} líneas.",
+      "errorsTitle": "Filas omitidas",
+      "warningsTitle": "Advertencias"
+    },
+    "errors": {
+      "emptyFile": "El CSV está vacío.",
+      "parseError": "La fila {{row}} no se pudo analizar: {{message}}.",
+      "invalidPlaneRow": "La fila {{row}} tiene valores de plano inválidos (dirección/buzamiento).",
+      "missingPlaneColumns": "La fila {{row}} no contiene las columnas dipDirection/dip.",
+      "invalidLineRow": "La fila {{row}} tiene valores de línea inválidos (rumbo/inclinación).",
+      "missingLineColumns": "La fila {{row}} no contiene las columnas trend/plunge.",
+      "invalidNumber": "La fila {{row}} tiene valores fuera de los rangos permitidos (0–360/0–90).",
+      "noValidRows": "No se detectaron orientaciones válidas en este archivo."
+    },
+    "warnings": {
+      "emptyRow": "La fila {{row}} está vacía y se ignoró.",
+      "noRecognizedColumns": "La fila {{row}} no incluye cabeceras reconocidas."
+    }
+  },
   "labels": {
     "dipDirection": "Dirección de buzamiento",
     "dip": "Buzamiento",
@@ -45,9 +71,21 @@
       "showGrid": "Mostrar retícula",
       "showPoles": "Mostrar polos"
     },
+    "export": {
+      "processing": "Preparando…",
+      "success": "Se exportó la captura {{format}}.",
+      "error": "No se pudo generar la exportación. Intenta nuevamente.",
+      "missing": "El estereonet todavía se está renderizando. Vuelve a intentarlo en un momento.",
+      "title": "Stereonet Explorer",
+      "date": "Generado: {{date}}",
+      "summary": "Planos: {{planes}} • Líneas: {{lines}}",
+      "note": "Renderizado sin conexión con Stereonet Explorer (RFC-2025-10)."
+    },
     "actions": {
       "loadSample": "Cargar muestra",
-      "clearAll": "Limpiar todo"
+      "clearAll": "Limpiar todo",
+      "exportPng": "Exportar PNG",
+      "exportSvg": "Exportar SVG"
     }
   },
   "table": {
@@ -93,6 +131,45 @@
     "summary": {
       "title": "Resumen de análisis",
       "placeholder": "Las herramientas de interpretación estarán disponibles pronto."
+    }
+  },
+  "eduTour": {
+    "actions": {
+      "start": "Tour guiado",
+      "review": "Revisar tour",
+      "next": "Siguiente",
+      "finish": "Finalizar",
+      "back": "Atrás",
+      "skip": "Saltar",
+      "reset": "Reiniciar"
+    },
+    "labels": {
+      "completed": "Completado",
+      "new": "Nuevo",
+      "progress": "Paso {{current}} de {{total}}"
+    },
+    "steps": {
+      "welcome": {
+        "title": "Bienvenido a Stereonet Explorer",
+        "body": "Utiliza la barra de navegación para alternar entre modo aula y vistas de análisis. Este tour repasa el flujo principal que funciona sin conexión en campo."
+      },
+      "input": {
+        "title": "Añade planos y líneas",
+        "body": "Empieza en el panel izquierdo para registrar mediciones estructurales. Introduce dirección de buzamiento y buzamiento para planos o rumbo e inclinación para líneas; los datos se guardan automáticamente."
+      },
+      "canvas": {
+        "title": "Interpreta el estereonet",
+        "body": "La barra de herramientas te permite cambiar de proyección, activar la retícula y cargar muestras. Las orientaciones aparecen en el estereonet central con D3 para inspeccionar polos y círculos máximos."
+      },
+      "data": {
+        "title": "Revisa y prepara datasets",
+        "body": "La tabla de la derecha lista cada orientación guardada localmente (Dexie). Úsala para depurar entradas, exportar resultados o prepararte para las herramientas de mapas y capas."
+      }
+    }
+  },
+  "geo": {
+    "validation": {
+      "pending": "La validación GeoJSON se añadirá con el módulo de mapas (RFC-2025-11)."
     }
   }
 }

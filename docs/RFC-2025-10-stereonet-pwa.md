@@ -395,9 +395,12 @@ export function projectLine(trendDeg: number, plungeDeg: number, radius: number,
 - QA ejecutada (`npm run lint`, `npm run type-check`, `npm run build`); `npm run preview` advertido por el sandbox (EPERM al abrir `127.0.0.1:4173`) y Lighthouse pendiente para validación manual en entorno local/GitHub Pages.
 
 #### **Iteración E — Funcionalidades educativas/import/export** (`feature/edu-suite`)
-- Implementar stubs planificados: `EduTour`, `CsvDrop`, export PNG/SVG con leyenda.
-- Crear stubs tipados para `features/map/MapView.tsx`, `features/layers/LayerManager.tsx`, `core/analysis/index.ts` y `services/validation.ts`, dejando TODO referenciados a la RFC-2025-11.
-- Documentar comportamiento y pruebas manuales, incluida la disponibilidad de estas extensiones.
+- **Estado:** Completada el 2025-10-19 en `feature/edu-suite`.
+- `features/edu/components/EduTour.tsx` incorpora un tour de 4 pasos (ES/EN) con persistencia en `localStorage`; botón accesible desde `TopNav` y documentado en el README.
+- `CsvDrop` + `validateCsv` (Papaparse) permiten arrastrar CSV, validan filas (mensajes traducidos) y añaden registros mediante Dexie/Zustand; incluye prueba `src/services/validation.test.ts` (Vitest).
+- Toolbar expone exportaciones PNG/SVG con leyenda, fecha y resumen usando `html-to-image`; README describe limitaciones de estilo y cómo extender la plantilla.
+- Se añadieron stubs tipados para `features/map/MapView.tsx`, `features/layers/LayerManager.tsx`, `core/analysis/index.ts` y `services/validation.ts` (TODO GeoJSON) alineados con RFC-2025-11.
+- QA ejecutada (`npm run lint`, `npm run type-check`, `npm run test`, `npm run build`) y verificación manual: recorrido guiado, importación de CSV de ejemplo y exportación SVG/PNG desde Toolbar.
 
 #### **Iteración F — Opcional backend Supabase** (`feature/cloud-sync`)
 - Evaluar integración supeditada a disponer de entorno Supabase. Añadir hooks y políticas sólo si Dexie y PWA están estabilizados.
@@ -464,7 +467,7 @@ Implementa el RFC-2025-10 (archivo /docs/RFC-2025-10-stereonet-pwa.md):
 - [x] i18n ES/EN con switch persistente (Iteración B).  
 - [ ] Persistencia Dexie correcta (Iteración C).  
 - [x] PWA instalable y offline (Iteración D).  
-- [ ] Export PNG/SVG con leyenda y componentes educativos (Iteración E).  
+- [x] Export PNG/SVG con leyenda y componentes educativos (Iteración E).  
 - [ ] Opcional: Sincronización Supabase cuando se habilite (Iteración F).  
 - [ ] Lint/Type-check/Build OK en todas las iteraciones; Lighthouse PWA ≥ 90 al final de Iteración D.
 
