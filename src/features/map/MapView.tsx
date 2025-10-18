@@ -36,6 +36,14 @@ import {
 import useLayerResolver from '@/features/layers/hooks/useLayerResolver';
 import type { LayerKind } from '@/features/layers/model/layerTypes';
 
+type FitTarget = [number, number];
+
+const buildSignature = (targets: FitTarget[]): string =>
+  targets
+    .map(([lat, lng]) => `${lat.toFixed(4)}:${lng.toFixed(4)}`)
+    .sort()
+    .join('|');
+
 const DEFAULT_CENTER: LatLngExpression = [0, 0];
 const DEFAULT_ZOOM = 2;
 
@@ -258,6 +266,8 @@ const MapView: React.FC = () => {
   const mapRef = useRef<LeafletMap | null>(null);
   const lastSelectedRef = useRef<number | string | null>(null);
   const isAutoFittingRef = useRef(false);
+  const autoFitSignatureRef = useRef<string | null>(null);
+  const selectedFitSignatureRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -329,65 +339,67 @@ const MapView: React.FC = () => {
   );
 
   const applyAutoFit = useCallback(
-    (markers: typeof orientationMarkers, options?: { animate?: boolean }) => {
+    (targets: FitTarget[], options?: { animate?: boolean }) => {
       const map = mapRef.current;
-      if (!map || markers.length === 0) {
+      if (!map || targets.length === 0) {
         return;
       }
-      isAutoFittingRef.current = true;
+
       const animate = options?.animate ?? true;
-      if (markers.length === 1) {
-        const [latitude, longitude] = markers[0]?.position as [number, number];
-        const targetZoom = Math.max(map.getZoom(), 7);
-        map.flyTo([latitude, longitude], targetZoom, { animate });
-        map.once('moveend', () => {
-          isAutoFittingRef.current = false;
-          setHasUserAdjustedView(false);
-        });
+      const finalize = () => {
+        isAutoFittingRef.current = false;
+        setHasUserAdjustedView(false);
+      };
+
+      const scheduleFinalize = () => {
         if (!animate) {
-          isAutoFittingRef.current = false;
-          setHasUserAdjustedView(false);
-        } else {
-          window.setTimeout(() => {
-            if (isAutoFittingRef.current) {
-              isAutoFittingRef.current = false;
-              setHasUserAdjustedView(false);
-            }
-          }, 500);
+          finalize();
+          return;
         }
-        return;
-      }
 
-      const latLngs = markers.map((marker) =>
-        L.latLng(marker.position as [number, number])
-      );
-      const bounds = L.latLngBounds(latLngs);
-      if (!bounds.isValid()) {
-        return;
-      }
-
-      const padding: L.PointTuple = [48, 48];
-      const desiredZoom = map.getBoundsZoom(bounds, false, padding);
-      const coverageKm =
-        bounds.getNorthEast().distanceTo(bounds.getSouthWest()) / 1000;
-      const targetZoom = coverageKm <= 1200 && desiredZoom < 5 ? 5 : desiredZoom;
-
-      map.flyTo(bounds.getCenter(), targetZoom, { animate });
-      map.once('moveend', () => {
-        isAutoFittingRef.current = false;
-        setHasUserAdjustedView(false);
-      });
-      if (!animate) {
-        isAutoFittingRef.current = false;
-        setHasUserAdjustedView(false);
-      } else {
+        map.once('moveend', finalize);
         window.setTimeout(() => {
           if (isAutoFittingRef.current) {
-            isAutoFittingRef.current = false;
-            setHasUserAdjustedView(false);
+            finalize();
           }
-        }, 500);
+        }, 600);
+      };
+
+      const latLngs = targets.map(([lat, lng]) => L.latLng(lat, lng));
+      if (latLngs.length === 1) {
+        isAutoFittingRef.current = true;
+        const { lat, lng } = latLngs[0];
+        const targetZoom = Math.max(map.getZoom(), 7);
+        map.flyTo([lat, lng], targetZoom, { animate });
+        scheduleFinalize();
+        return;
       }
+
+      const bounds = L.latLngBounds(latLngs);
+      if (!bounds.isValid()) {
+        finalize();
+        return;
+      }
+
+      const padding = L.point(48, 48);
+      const computedZoom = map.getBoundsZoom(bounds, false, padding);
+      isAutoFittingRef.current = true;
+
+      if (computedZoom >= 7) {
+        const targetZoom = Math.min(
+          Math.max(computedZoom, 7),
+          map.getMaxZoom() ?? computedZoom
+        );
+        map.flyTo(bounds.getCenter(), targetZoom, { animate });
+        scheduleFinalize();
+        return;
+      }
+
+      map.fitBounds(bounds, {
+        padding,
+        animate,
+      });
+      scheduleFinalize();
     },
     []
   );
@@ -409,58 +421,6 @@ const MapView: React.FC = () => {
       map.off('zoomstart', markAdjusted);
     };
   }, []);
-
-  useEffect(() => {
-    if (orientationMarkers.length === 0) {
-      return;
-    }
-    if (!hasUserAdjustedView) {
-      applyAutoFit(orientationMarkers, { animate: true });
-    }
-  }, [orientationMarkers, hasUserAdjustedView, applyAutoFit]);
-
-  const selectedMarkers = useMemo(
-    () =>
-      selectedOrientationId === null
-        ? []
-        : orientationMarkers.filter(
-            (entry) => String(entry.id) === String(selectedOrientationId)
-          ),
-    [orientationMarkers, selectedOrientationId]
-  );
-
-  useEffect(() => {
-    if (!mapRef.current) {
-      return;
-    }
-    if (selectedOrientationId === null) {
-      lastSelectedRef.current = null;
-      return;
-    }
-    if (lastSelectedRef.current === selectedOrientationId) {
-      return;
-    }
-    if (selectedMarkers.length === 0) {
-      return;
-    }
-    applyAutoFit(selectedMarkers, { animate: true });
-    lastSelectedRef.current = selectedOrientationId;
-  }, [applyAutoFit, selectedMarkers, selectedOrientationId]);
-
-  const recenter = useCallback(
-    (scope: 'selected' | 'all') => {
-      const markers =
-        scope === 'selected' && selectedMarkers.length > 0
-          ? selectedMarkers
-          : orientationMarkers;
-      if (markers.length === 0) {
-        return;
-      }
-      setHasUserAdjustedView(false);
-      applyAutoFit(markers, { animate: true });
-    },
-    [applyAutoFit, orientationMarkers, selectedMarkers]
-  );
 
   const overlayLines = useMemo(() => {
     return localFeatures
@@ -490,6 +450,115 @@ const MapView: React.FC = () => {
         };
       });
   }, [localFeatures]);
+
+  const selectedIdString = useMemo(
+    () => (selectedOrientationId !== null ? String(selectedOrientationId) : null),
+    [selectedOrientationId]
+  );
+
+  const orientationFitTargets = useMemo<FitTarget[]>(
+    () =>
+      orientationMarkers
+        .filter((marker) => marker.hasCoordinates)
+        .map((marker) => marker.position as FitTarget),
+    [orientationMarkers]
+  );
+
+  const overlayPointTargets = useMemo<FitTarget[]>(
+    () => overlayPoints.map((point) => point.position as FitTarget),
+    [overlayPoints]
+  );
+
+  const overlayLineTargets = useMemo<FitTarget[]>(
+    () =>
+      overlayLines.flatMap((line) =>
+        line.positions.map((position) => position as FitTarget)
+      ),
+    [overlayLines]
+  );
+
+  const autoFitTargets = useMemo<FitTarget[]>(
+    () => [...orientationFitTargets, ...overlayPointTargets, ...overlayLineTargets],
+    [orientationFitTargets, overlayPointTargets, overlayLineTargets]
+  );
+
+  const selectedFitTargets = useMemo<FitTarget[]>(
+    () =>
+      selectedIdString === null
+        ? []
+        : orientationMarkers
+            .filter(
+              (marker) =>
+                marker.hasCoordinates &&
+                String(marker.id) === selectedIdString
+            )
+            .map((marker) => marker.position as FitTarget),
+    [orientationMarkers, selectedIdString]
+  );
+
+  useEffect(() => {
+    if (autoFitTargets.length === 0) {
+      autoFitSignatureRef.current = null;
+      return;
+    }
+    if (hasUserAdjustedView) {
+      return;
+    }
+    const signature = buildSignature(autoFitTargets);
+    if (signature === autoFitSignatureRef.current) {
+      return;
+    }
+    applyAutoFit(autoFitTargets, { animate: true });
+    autoFitSignatureRef.current = signature;
+  }, [autoFitTargets, hasUserAdjustedView, applyAutoFit]);
+
+  useEffect(() => {
+    if (selectedOrientationId === null) {
+      lastSelectedRef.current = null;
+      selectedFitSignatureRef.current = null;
+      return;
+    }
+
+    if (selectedFitTargets.length === 0) {
+      selectedFitSignatureRef.current = null;
+      lastSelectedRef.current = selectedOrientationId;
+      return;
+    }
+
+    const signature = buildSignature(selectedFitTargets);
+    if (
+      lastSelectedRef.current === selectedOrientationId &&
+      signature === selectedFitSignatureRef.current
+    ) {
+      return;
+    }
+
+    applyAutoFit(selectedFitTargets, { animate: true });
+    selectedFitSignatureRef.current = signature;
+    lastSelectedRef.current = selectedOrientationId;
+  }, [applyAutoFit, selectedFitTargets, selectedOrientationId]);
+
+  const recenter = useCallback(
+    (scope: 'selected' | 'all') => {
+      const targets =
+        scope === 'selected' && selectedFitTargets.length > 0
+          ? selectedFitTargets
+          : autoFitTargets;
+
+      if (targets.length === 0) {
+        return;
+      }
+
+      if (scope === 'selected' && selectedFitTargets.length > 0) {
+        selectedFitSignatureRef.current = buildSignature(selectedFitTargets);
+      } else {
+        autoFitSignatureRef.current = buildSignature(targets);
+      }
+
+      applyAutoFit(targets, { animate: true });
+    },
+    [applyAutoFit, autoFitTargets, selectedFitTargets]
+  );
 
   const handleCsvImport = useCallback(
     async (text: string) => {
@@ -615,8 +684,6 @@ const MapView: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  const selectedIdString = selectedOrientationId !== null ? String(selectedOrientationId) : null;
-
   return (
     <section className="flex h-full flex-col gap-4">
       <header className="flex flex-col gap-1">
@@ -718,10 +785,10 @@ const MapView: React.FC = () => {
         ))}
         <button
           type="button"
-          onClick={() => recenter(selectedMarkers.length > 0 ? 'selected' : 'all')}
+          onClick={() => recenter(selectedFitTargets.length > 0 ? 'selected' : 'all')}
           className="ml-auto rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 transition hover:border-blue-400 hover:text-blue-600"
         >
-          {selectedMarkers.length > 0
+          {selectedFitTargets.length > 0
             ? t('map.controls.recenterSelected')
             : t('map.controls.recenterAll')}
         </button>
