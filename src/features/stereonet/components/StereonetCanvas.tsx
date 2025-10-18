@@ -6,10 +6,15 @@ import { COLORS } from '../model/transforms';
 import { projectLine, getPoleToPlane, getGreatCirclePath } from '@/core/projection';
 import { selectStructuralData, useStereonetStore } from '@/state/store';
 
-const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
+interface StereonetCanvasProps {
+    isVisible?: boolean;
+}
+
+const StereonetCanvas = forwardRef<SVGSVGElement | null, StereonetCanvasProps>(({ isVisible = true }, ref) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [dimensions, setDimensions] = useState({ width: 500, height: 500 });
+    const lastValidDimensionsRef = useRef({ width: 500, height: 500 });
     const { t, i18n } = useTranslation();
     const data = useStereonetStore(selectStructuralData);
     const projection = useStereonetStore(state => state.projection);
@@ -21,17 +26,56 @@ const StereonetCanvas = forwardRef<SVGSVGElement | null>((_, ref) => {
 
     useEffect(() => {
         const resizeObserver = new ResizeObserver(entries => {
-            if (entries[0]) {
-                const { width, height } = entries[0].contentRect;
-                const size = Math.min(width, height);
-                setDimensions({ width: size, height: size });
+            if (!entries[0]) {
+                return;
             }
+            const { width, height } = entries[0].contentRect;
+            const size = Math.min(width, height);
+            if (size <= 0) {
+                return;
+            }
+            const nextDimensions = { width: size, height: size };
+            lastValidDimensionsRef.current = nextDimensions;
+            setDimensions(prev => {
+                if (prev.width === nextDimensions.width && prev.height === nextDimensions.height) {
+                    return prev;
+                }
+                return nextDimensions;
+            });
         });
         if (containerRef.current) {
             resizeObserver.observe(containerRef.current);
         }
         return () => resizeObserver.disconnect();
     }, []);
+
+    useEffect(() => {
+        if (!isVisible) {
+            return;
+        }
+        if (!containerRef.current) {
+            return;
+        }
+        const handle = window.requestAnimationFrame(() => {
+            const rect = containerRef.current?.getBoundingClientRect();
+            if (!rect) {
+                return;
+            }
+            const size = Math.min(rect.width, rect.height);
+            if (size <= 0) {
+                return;
+            }
+            const nextDimensions = { width: size, height: size };
+            lastValidDimensionsRef.current = nextDimensions;
+            setDimensions(prev => {
+                if (prev.width === nextDimensions.width && prev.height === nextDimensions.height) {
+                    return prev;
+                }
+                return nextDimensions;
+            });
+        });
+        return () => window.cancelAnimationFrame(handle);
+    }, [isVisible]);
 
     useEffect(() => {
         if (!svgRef.current) return;

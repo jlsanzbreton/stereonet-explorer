@@ -2,6 +2,13 @@
   "app": {
     "title": "Stereonet Explorer"
   },
+  "shell": {
+    "tabs": {
+      "stereonet": "Stereonet",
+      "map": "Map",
+      "ariaLabel": "Switch between Stereonet and Map"
+    }
+  },
   "map": {
     "title": "Map overview",
     "subtitle": "Render local orientations using stored coordinates. Entries without latitude/longitude fall back to trend/dip placeholders.",
